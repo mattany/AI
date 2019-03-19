@@ -69,7 +69,22 @@ def depth_first_search(problem):
     print("Start:", problem.get_start_state().state)
     print("Is the start a goal?", problem.is_goal_state(problem.get_start_state()))
     print("Start's successors:", problem.get_successors(problem.get_start_state()))
+    #
+    #
+    stack = util.Stack()
+    discovered = set()
 
+    current_node = problem.get_start_state()
+    neighbors = problem.get_successors
+
+    discovered.add(current_node)
+    stack.push(current_node)
+    while not stack.isEmpty():
+        current_node = stack.pop()
+        if current_node not in discovered:
+            discovered.add(current_node)
+            for neighbor in neighbors:
+                stack.push(neighbor)
     util.raiseNotDefined()
 
 
