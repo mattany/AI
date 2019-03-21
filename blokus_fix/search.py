@@ -73,12 +73,13 @@ def depth_first_search(problem):
         problem.is_goal_state(current_node)
         neighbors = problem.get_successors(current_node)
         # if any(problem.is_goal_state(neighbor) for neighbor in neighbors):
-        for neighbor in neighbors
-            path = []
-            while not stack.isEmpty():
-                path.insert(0, stack.pop()[1])
-            return path
-        elif any(neighbor not in discovered for neighbor in neighbors):
+        for neighbor in neighbors:
+            if problem.is_goal_state(neighbor):
+                path = []
+                while not stack.isEmpty():
+                    path.insert(0, stack.pop()[1])
+                return path
+        if any(neighbor not in discovered for neighbor in neighbors):
             current_node = stack.pop()
             # if current_node not in
 
