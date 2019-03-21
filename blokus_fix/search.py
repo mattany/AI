@@ -62,29 +62,31 @@ def depth_first_search(problem):
     the goal. Make sure to implement a graph search algorithm.
     """
     "*** YOUR CODE HERE ***"
-    print("Start:", problem.get_start_state().state)
-    print("Is the start a goal?", problem.is_goal_state(problem.get_start_state()))
-    print("Start's successors:", problem.get_successors(problem.get_start_state()))
+    # print("Start:", problem.get_start_state().state)
+    # print("Is the start a goal?", problem.is_goal_state(problem.get_start_state()))
+    # print("Start's successors:", problem.get_successors(problem.get_start_state()))
     #
     #
     start_state = problem.get_start_state()
-    current_node = (None, start_state, None)
+    current_node = (start_state, None, None)
+    actions = list()
     stack = util.Stack()
-    visited = set()
+    visited = {current_node}
     stack.push(current_node)
     while not stack.isEmpty():
         current_node = stack.pop()
+        if current_node[STATE] != start_state:
+            actions.append(current_node[ACTION])
         neighbors = problem.get_successors(current_node[STATE])
         for neighbor in neighbors:
             if problem.is_goal_state(neighbor[STATE]):
-                path = []
-                while not stack.isEmpty() and current_node[STATE] != start_state:
-                    path.insert(0, stack.pop()[ACTION])
-                return path
+                actions.append(neighbor[ACTION])
+                return actions
         for neighbor in neighbors:
             if neighbor not in visited:
                 stack.push(neighbor)
                 visited.add(neighbor)
+
     # if any(problem.is_goal_state(neighbor) for neighbor in neighbors):
     # neighbors = problem.get_successors
     #
