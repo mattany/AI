@@ -4,6 +4,9 @@ In search.py, you will implement generic search algorithms
 
 import util
 
+STATE = 0
+ACTION = 1
+COST = 2
 
 class SearchProblem:
     """
@@ -66,24 +69,23 @@ def depth_first_search(problem):
     #
     current_node = problem.get_start_state()
     stack = util.Stack()
-    stack.push(current_node)
     discovered = set()
+    stack.push(current_node)
     while not stack.isEmpty():
         current_node = stack.pop()
         problem.is_goal_state(current_node)
-        neighbors = problem.get_successors(current_node)
-        # if any(problem.is_goal_state(neighbor) for neighbor in neighbors):
+        neighbors = problem.get_successors(current_node[STATE])
         for neighbor in neighbors:
-            if problem.is_goal_state(neighbor):
+            if problem.is_goal_state(neighbor[STATE]):
                 path = []
                 while not stack.isEmpty():
-                    path.insert(0, stack.pop()[1])
+                    path.insert(0, stack.pop()[ACTION])
                 return path
         if any(neighbor not in discovered for neighbor in neighbors):
 
             if current_node not in
 
-    #
+    # if any(problem.is_goal_state(neighbor) for neighbor in neighbors):
     # neighbors = problem.get_successors
     #
     # discovered.add(current_node)
