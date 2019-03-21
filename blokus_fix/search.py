@@ -8,6 +8,11 @@ STATE = 0
 ACTION = 1
 COST = 2
 
+MOVE = 0
+SRC = 1
+DEST = 2
+
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -62,47 +67,38 @@ def depth_first_search(problem):
     the goal. Make sure to implement a graph search algorithm.
     """
     "*** YOUR CODE HERE ***"
-    # print("Start:", problem.get_start_state().state)
-    # print("Is the start a goal?", problem.is_goal_state(problem.get_start_state()))
-    # print("Start's successors:", problem.get_successors(problem.get_start_state()))
     #
-    #
-    start_state = problem.get_start_state()
-    current_node = (start_state, None, None)
-    actions = list()
-    stack = util.Stack()
-    visited = {current_node}
-    stack.push(current_node)
-    while not stack.isEmpty():
-        current_node = stack.pop()
-        if current_node[STATE] != start_state:
-            actions.append(current_node[ACTION])
-        neighbors = problem.get_successors(current_node[STATE])
-        for neighbor in neighbors:
-            if problem.is_goal_state(neighbor[STATE]):
-                actions.append(neighbor[ACTION])
-                return actions
-        for neighbor in neighbors:
-            if neighbor not in visited:
-                stack.push(neighbor)
-                visited.add(neighbor)
-
-    # if any(problem.is_goal_state(neighbor) for neighbor in neighbors):
-    # neighbors = problem.get_successors
-    #
-    # visited.add(current_node)
-    # stack.push(current_node)
-    # if problem.is_goal_state(current_node):
-    #     path = []
-    #     while not stack.isEmpty():
-    #         path[0] = stack.pop()
-    #     return path
+    # start_state = problem.get_start_state()
+    # cur_node = (start_state, None, None)
+    # actions = list()
+    # stack = util.Stack()
+    # visited = {cur_node}
+    # stack.push(cur_node)
     # while not stack.isEmpty():
-    #     current_node = stack.pop()
-    #     if current_node not in visited:
-    #         visited.add(current_node)
+    #     prev_node = cur_node
+    #     cur_node = stack.pop()
+    #     if cur_node[STATE] != start_state:
+    #         actions.append((cur_node[ACTION], prev_node[STATE], cur_node[STATE]))
+    #     neighbors = problem.get_successors(cur_node[STATE])
+    #     if any(neighbor not in visited for neighbor in neighbors):
     #         for neighbor in neighbors:
-    #             stack.push(neighbor)
+    #             if problem.is_goal_state(neighbor[STATE]):
+    #                 actions.append((neighbor[ACTION], cur_node[STATE], neighbor[STATE]))
+    #                 return [i[MOVE] for i in actions]
+    #         for neighbor in neighbors:
+    #             if neighbor not in visited:
+    #                 stack.push(neighbor)
+    #                 visited.add(neighbor)
+    #     else:
+    #         last_action = actions[-1]
+    #         while last_action[SRC] not in neighbors:
+    #             if len(actions) > 0:
+    #                 del actions[-1]
+    #             if len(actions) > 0:
+    #                 last_action = actions[-1]
+    #
+    #
+    return []
     util.raiseNotDefined()
 
 
