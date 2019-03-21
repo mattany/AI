@@ -4,13 +4,15 @@ In search.py, you will implement generic search algorithms
 
 import util
 
+
+
+PATH = 1
+
+
 STATE = 0
 ACTION = 1
 COST = 2
 
-MOVE = 0
-SRC = 1
-DEST = 2
 
 
 class SearchProblem:
@@ -114,7 +116,23 @@ def uniform_cost_search(problem):
     """
     Search the node of least total cost first.
     """
-    "*** YOUR CODE HERE ***"
+    start_state = problem.get_start_state()
+    current = (start_state, [], 0)
+    fringe = util.PriorityQueue()
+    visited = set()
+    fringe.push(current, current[COST])
+    while not fringe.isEmpty():
+        current = fringe.pop()
+        if problem.is_goal_state(current[STATE]):
+            return current[PATH]
+        elif current[STATE] not in visited:
+            neighbors = problem.get_successors(current[STATE])
+            for triplet in neighbors:
+                path_to = current[PATH]
+                path_to.append(triplet[ACTION])
+                neighbor = (triplet[STATE], path_to, current[COST]+triplet[COST])
+                fringe.push(neighbor, neighbor[COST])
+            visited.add(current[STATE])
     util.raiseNotDefined()
 
 
