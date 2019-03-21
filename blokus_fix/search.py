@@ -57,13 +57,6 @@ def depth_first_search(problem):
 
     Your search algorithm needs to return a list of actions that reaches
     the goal. Make sure to implement a graph search algorithm.
-
-    To get started, you might want to try some of these simple commands to
-    understand the search problem that is being passed in:
-
-	print("Start:", problem.get_start_state().state)
-    print("Is the start a goal?", problem.is_goal_state(problem.get_start_state()))
-    print("Start's successors:", problem.get_successors(problem.get_start_state()))
     """
     "*** YOUR CODE HERE ***"
     print("Start:", problem.get_start_state().state)
@@ -79,12 +72,18 @@ def depth_first_search(problem):
 
     discovered.add(current_node)
     stack.push(current_node)
+    if problem.is_goal_state(current_node):
+        path = []
+        while not stack.isEmpty():
+            path[0] = stack.pop()
+        return path
     while not stack.isEmpty():
         current_node = stack.pop()
         if current_node not in discovered:
             discovered.add(current_node)
             for neighbor in neighbors:
                 stack.push(neighbor)
+
     util.raiseNotDefined()
 
 
