@@ -67,28 +67,28 @@ def depth_first_search(problem):
     print("Start's successors:", problem.get_successors(problem.get_start_state()))
     #
     #
-    current_node = problem.get_start_state()
+    start_state = problem.get_start_state()
+    current_node = (None, start_state, None)
     stack = util.Stack()
-    discovered = set()
+    visited = set()
     stack.push(current_node)
     while not stack.isEmpty():
         current_node = stack.pop()
-        problem.is_goal_state(current_node)
         neighbors = problem.get_successors(current_node[STATE])
         for neighbor in neighbors:
             if problem.is_goal_state(neighbor[STATE]):
                 path = []
-                while not stack.isEmpty():
+                while not stack.isEmpty() and current_node[STATE] != start_state:
                     path.insert(0, stack.pop()[ACTION])
                 return path
-        if any(neighbor not in discovered for neighbor in neighbors):
-
-            if current_node not in
-
+        for neighbor in neighbors:
+            if neighbor not in visited:
+                stack.push(neighbor)
+                visited.add(neighbor)
     # if any(problem.is_goal_state(neighbor) for neighbor in neighbors):
     # neighbors = problem.get_successors
     #
-    # discovered.add(current_node)
+    # visited.add(current_node)
     # stack.push(current_node)
     # if problem.is_goal_state(current_node):
     #     path = []
@@ -97,8 +97,8 @@ def depth_first_search(problem):
     #     return path
     # while not stack.isEmpty():
     #     current_node = stack.pop()
-    #     if current_node not in discovered:
-    #         discovered.add(current_node)
+    #     if current_node not in visited:
+    #         visited.add(current_node)
     #         for neighbor in neighbors:
     #             stack.push(neighbor)
     util.raiseNotDefined()
