@@ -49,16 +49,21 @@ class SearchProblem:
         util.raiseNotDefined()
 
 
+
+
 def depth_first_search(problem):
     """
     Search the deepest nodes in the search tree first.
 
     Your search algorithm needs to return a list of actions that reaches
     the goal. Make sure to implement a graph search algorithm.
+    """
+    "*** YOUR CODE HERE ***"
     print("Start:", problem.get_start_state().state)
     print("Is the start a goal?", problem.is_goal_state(problem.get_start_state()))
     print("Start's successors:", problem.get_successors(problem.get_start_state()))
-    """
+    #
+    #
     current_node = problem.get_start_state()
     stack = util.Stack()
     stack.push(current_node)
@@ -74,10 +79,9 @@ def depth_first_search(problem):
                 while not stack.isEmpty():
                     path.insert(0, stack.pop()[1])
                 return path
-        for neighbor in neighbors:
-            if neighbor not in discovered:
-                stack.push(neighbor)
-                discovered.add(neighbor)
+        if any(neighbor not in discovered for neighbor in neighbors):
+
+            if current_node not in
 
     #
     # neighbors = problem.get_successors
@@ -128,6 +132,7 @@ def a_star_search(problem, heuristic=null_heuristic):
     """
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
+
 
 
 # Abbreviations
