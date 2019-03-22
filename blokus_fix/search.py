@@ -149,6 +149,24 @@ def a_star_search(problem, heuristic=null_heuristic):
     Search the node that has the lowest combined cost and heuristic first.
     """
     "*** YOUR CODE HERE ***"
+    start_state = problem.get_start_state()
+    current = (start_state, [], heuristic(start_state, problem))
+    fringe = util.PriorityQueue()
+    visited = set()
+    fringe.push(current, current[COST])
+    while not fringe.isEmpty():
+        current = fringe.pop()
+        if problem.is_goal_state(current[STATE]):
+            return current[PATH]
+        elif current[STATE] not in visited:
+            neighbors = problem.get_successors(current[STATE])
+            for triplet in neighbors:
+                path_to = current[PATH]
+                path_to.append(triplet[ACTION])
+                neighbor = (triplet[STATE], path_to, triplet[COST] + heuristic(triplet[STATE], problem))
+                fringe.push(neighbor, neighbor[COST])
+            visited.add(current[STATE])
+
     util.raiseNotDefined()
 
 
