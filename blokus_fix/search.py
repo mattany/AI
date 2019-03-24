@@ -90,15 +90,36 @@ def depth_first_search(problem):
                 fringe.push((neighbor[STATE], path_to_neighbor))
             visited.add(current_node[STATE])
     return []
-    util.raiseNotDefined()
+
 
 
 def breadth_first_search(problem):
     """
     Search the shallowest nodes in the search tree first.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    fringe = util.Queue()
+    current_node = (problem.get_start_state(), [])
+
+    visited = set()
+    fringe.push(current_node)
+
+    while not fringe.isEmpty():
+        current_node = fringe.pop()
+
+        if problem.is_goal_state(current_node[STATE]):
+            return current_node[PATH]
+
+        elif current_node[STATE] not in visited:
+            neighbors = problem.get_successors(current_node[STATE])
+
+            for neighbor in neighbors:
+                path_to_neighbor = copy.deepcopy(current_node[PATH])
+                path_to_neighbor.append(neighbor[ACTION])
+                fringe.push((neighbor[STATE], path_to_neighbor))
+            visited.add(current_node[STATE])
+    return []
+
 
 
 def uniform_cost_search(problem):
