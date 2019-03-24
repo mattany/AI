@@ -3,7 +3,7 @@ In search.py, you will implement generic search algorithms
 """
 
 import util
-
+import copy
 
 
 PATH = 1
@@ -40,7 +40,7 @@ class SearchProblem:
     def get_successors(self, state):
         """
         state: Search state
-
+STATE
         For a given state, this should return a list of triples,
         (successor, action, stepCost), where 'successor' is a
         successor to the current state, 'action' is the action
@@ -68,38 +68,27 @@ def depth_first_search(problem):
     Your search algorithm needs to return a list of actions that reaches
     the goal. Make sure to implement a graph search algorithm.
     """
-    "*** YOUR CODE HERE ***"
-    #
-    # start_state = problem.get_start_state()
-    # cur_node = (start_state, None, None)
-    # actions = list()
-    # stack = util.Stack()
-    # visited = {cur_node}
-    # stack.push(cur_node)
-    # while not stack.isEmpty():
-    #     prev_node = cur_node
-    #     cur_node = stack.pop()
-    #     if cur_node[STATE] != start_state:
-    #         actions.append((cur_node[ACTION], prev_node[STATE], cur_node[STATE]))
-    #     neighbors = problem.get_successors(cur_node[STATE])
-    #     if any(neighbor not in visited for neighbor in neighbors):
-    #         for neighbor in neighbors:
-    #             if problem.is_goal_state(neighbor[STATE]):
-    #                 actions.append((neighbor[ACTION], cur_node[STATE], neighbor[STATE]))
-    #                 return [i[MOVE] for i in actions]
-    #         for neighbor in neighbors:
-    #             if neighbor not in visited:
-    #                 stack.push(neighbor)
-    #                 visited.add(neighbor)
-    #     else:
-    #         last_action = actions[-1]
-    #         while last_action[SRC] not in neighbors:
-    #             if len(actions) > 0:
-    #                 del actions[-1]
-    #             if len(actions) > 0:
-    #                 last_action = actions[-1]
-    #
-    #
+
+    fringe = util.Stack()
+    current_node = (problem.get_start_state(), [])
+
+    visited = set()
+    fringe.push(current_node)
+
+    while not fringe.isEmpty():
+        current_node = fringe.pop()
+
+        if problem.is_goal_state(current_node[STATE]):
+            return current_node[PATH]
+
+        elif current_node[STATE] not in visited:
+            neighbors = problem.get_successors(current_node[STATE])
+
+            for neighbor in neighbors:
+                path_to_neighbor = copy.deepcopy(current_node[PATH])
+                path_to_neighbor.append(neighbor[ACTION])
+                fringe.push((neighbor[STATE], path_to_neighbor))
+            visited.add(current_node[STATE])
     return []
     util.raiseNotDefined()
 
