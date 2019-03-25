@@ -87,6 +87,13 @@ def depth_first_search(problem):
     return []
 
 
+class Node:
+
+    def __init__(self, state, path, cost):
+        self.state = state
+        self.path = path
+        self.cost = cost
+
 def breadth_first_search(problem):
     """
     Search the shallowest nodes in the search tree first.
@@ -120,22 +127,22 @@ def uniform_cost_search(problem):
     Search the node of least total cost first.
     """
     start_state = problem.get_start_state()
-    current = (start_state, [], 0)
+    current = Node(start_state, [], 0)
     fringe = util.PriorityQueue()
     visited = set()
-    fringe.push(current, current[COST])
+    fringe.push(current, current.cost)
     while not fringe.isEmpty():
         current = fringe.pop()
-        if problem.is_goal_state(current[STATE]):
-            return current[PATH]
-        elif current[STATE] not in visited:
-            neighbors = problem.get_successors(current[STATE])
+        if problem.is_goal_state(current.state):
+            return current.path
+        elif current not in visited:
+            neighbors = problem.get_successors(current.state)
             for triplet in neighbors:
-                path_to = current[PATH]
+                path_to = copy.deepcopy(current.path)
                 path_to.append(triplet[ACTION])
-                neighbor = (triplet[STATE], path_to, current[COST] + triplet[COST])
-                fringe.push(neighbor, neighbor[COST])
-            visited.add(current[STATE])
+                neighbor = Node(triplet[STATE], path_to, current.cost + triplet[COST])
+                fringe.push(neighbor, neighbor.cost)
+            visited.add(current)
     util.raiseNotDefined()
 
 
@@ -153,24 +160,22 @@ def a_star_search(problem, heuristic=null_heuristic):
     """
     "*** YOUR CODE HERE ***"
     start_state = problem.get_start_state()
-    current = (start_state, [], heuristic(start_state, problem))
+    current = Node(start_state, [], heuristic(start_state, problem))
     fringe = util.PriorityQueue()
     visited = set()
-    fringe.push(current, current[COST])
+    fringe.push(current, current.cost)
     while not fringe.isEmpty():
         current = fringe.pop()
-        if problem.is_goal_state(current[STATE]):
-            return current[PATH]
-        elif current[STATE] not in visited:
-            neighbors = problem.get_successors(current[STATE])
+        if problem.is_goal_state(current.state):
+            return current.path
+        elif current.state not in visited:
+            neighbors = problem.get_successors(current.state)
             for triplet in neighbors:
-                path_to = current[PATH]
+                path_to = copy.deepcopy(current.path)
                 path_to.append(triplet[ACTION])
-                neighbor = (triplet[STATE], path_to,
-                            triplet[COST] + heuristic(triplet[STATE], problem))
-                fringe.push(neighbor, neighbor[COST])
-            visited.add(current[STATE])
-
+                neighbor = Node(triplet[STATE], path_to, current.cost + heuristic(triplet[STATE], problem))
+                fringe.push(neighbor, neighbor.cost)
+            visited.add(current.state)
     util.raiseNotDefined()
 
 
