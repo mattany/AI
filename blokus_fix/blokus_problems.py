@@ -115,6 +115,8 @@ class BlokusCornersProblem(SearchProblem):
 
         #util.raiseNotDefined()
 
+    def get_corners(self):
+        return [i for i in self.corners]
 
 def blokus_corners_heuristic(state, problem):
     """
@@ -128,8 +130,29 @@ def blokus_corners_heuristic(state, problem):
     your heuristic is *not* consistent, and probably not admissible!  On the other hand,
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    corners = problem.get_corners()
+
+    free_corners = 4
+    for i, corner in enumerate(corners):
+        if not state.get_position(corner[X], corner[Y]) == FREE:
+            free_corners -= 1
+        else:
+            if i == 0 and (not state.get_position(corner[X] + 1, corner[Y]) == FREE
+                           or not state.get_position(corner[X], corner[Y] + 1) == FREE):
+                return 100000000
+            if i == 1 and (not state.get_position(corner[X] - 1, corner[Y]) == FREE
+                           or not state.get_position(corner[X], corner[Y] + 1) == FREE):
+                return 100000000
+            if i == 2 and (not state.get_position(corner[X] + 1, corner[Y]) == FREE
+                           or not state.get_position(corner[X], corner[Y] - 1) == FREE):
+                return 100000000
+            if i == 3 and (not state.get_position(corner[X] - 1, corner[Y]) == FREE
+                           or not state.get_position(corner[X], corner[Y] - 1) == FREE):
+                return 100000000
+    return free_corners
+
+
 
 
 class BlokusCoverProblem(SearchProblem):

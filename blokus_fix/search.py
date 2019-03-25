@@ -94,6 +94,7 @@ class Node:
         self.path = path
         self.cost = cost
 
+
 def breadth_first_search(problem):
     """
     Search the shallowest nodes in the search tree first.
@@ -159,6 +160,7 @@ def a_star_search(problem, heuristic=null_heuristic):
     Search the node that has the lowest combined cost and heuristic first.
     """
     "*** YOUR CODE HERE ***"
+
     start_state = problem.get_start_state()
     current = Node(start_state, [], heuristic(start_state, problem))
     fringe = util.PriorityQueue()
@@ -173,7 +175,8 @@ def a_star_search(problem, heuristic=null_heuristic):
             for triplet in neighbors:
                 path_to = copy.deepcopy(current.path)
                 path_to.append(triplet[ACTION])
-                neighbor = Node(triplet[STATE], path_to, current.cost + heuristic(triplet[STATE], problem))
+                cost = current.cost + triplet[COST] + heuristic(triplet[STATE], problem)
+                neighbor = Node(triplet[STATE], path_to, cost)
                 fringe.push(neighbor, neighbor.cost)
             visited.add(current.state)
     util.raiseNotDefined()
