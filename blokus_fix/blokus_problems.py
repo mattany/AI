@@ -3,6 +3,11 @@ from search import SearchProblem, ucs
 import util
 
 
+FREE = -1
+X = 0
+Y = 1
+
+
 class BlokusFillProblem(SearchProblem):
     """
     A one-player Blokus game as a search problem.
@@ -38,17 +43,17 @@ class BlokusFillProblem(SearchProblem):
         """
         # Note that for the search problem, there is only one player - #0
         self.expanded = self.expanded + 1
-        return [(state.do_move(0, move), move, 1) for move in state.get_legal_moves(0)]
+        return [(state.do_move(0, move), move, 1) for move in
+                state.get_legal_moves(0)]
 
     def get_cost_of_actions(self, actions):
         """
         actions: A list of actions to take
 
-        This method returns the total cost of a particular sequence of actions.  The sequence must
-        be composed of legal moves
+        This method returns the total cost of a particular sequence of actions.
+        The sequence must be composed of legal moves
         """
         return len(actions)
-
 
 
 #####################################################
@@ -59,6 +64,7 @@ class BlokusCornersProblem(SearchProblem):
         self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.expanded = 0
         "*** YOUR CODE HERE ***"
+        self.corners = ((0, 0), (board_w-1, 0), (0, board_h-1), (board_w-1, board_h-1))
 
     def get_start_state(self):
         """
@@ -67,8 +73,17 @@ class BlokusCornersProblem(SearchProblem):
         return self.board
 
     def is_goal_state(self, state):
+        """
+        state: Search state
+        Returns True if and only if the state is a valid goal state
+        """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        for corner in self.corners:
+            if state.get_position(corner[X], corner[Y]) == FREE:
+                return False
+        return True
+
+        # util.raiseNotDefined()
 
     def get_successors(self, state):
         """
@@ -82,17 +97,23 @@ class BlokusCornersProblem(SearchProblem):
         """
         # Note that for the search problem, there is only one player - #0
         self.expanded = self.expanded + 1
-        return [(state.do_move(0, move), move, move.piece.get_num_tiles()) for move in state.get_legal_moves(0)]
+        return [(state.do_move(0, move), move, move.piece.get_num_tiles()) for
+                move in state.get_legal_moves(0)]
 
     def get_cost_of_actions(self, actions):
         """
         actions: A list of actions to take
 
-        This method returns the total cost of a particular sequence of actions.  The sequence must
-        be composed of legal moves
+        This method returns the total cost of a particular sequence of actions.
+        The sequence must be composed of legal moves
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        cost = 0
+        for move in actions:
+            cost += move.piece.get_num_tiles()
+        return cost
+
+        #util.raiseNotDefined()
 
 
 def blokus_corners_heuristic(state, problem):
@@ -112,7 +133,9 @@ def blokus_corners_heuristic(state, problem):
 
 
 class BlokusCoverProblem(SearchProblem):
-    def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=[(0, 0)]):
+    def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0),
+                 targets=[(0, 0)]):
+        self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.targets = targets.copy()
         self.expanded = 0
         "*** YOUR CODE HERE ***"
@@ -125,7 +148,12 @@ class BlokusCoverProblem(SearchProblem):
 
     def is_goal_state(self, state):
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+        for target in self.targets:
+            if state.get_position(target[X], target[Y]) == FREE:
+                return False
+
+        #util.raiseNotDefined()
 
     def get_successors(self, state):
         """
@@ -139,7 +167,8 @@ class BlokusCoverProblem(SearchProblem):
         """
         # Note that for the search problem, there is only one player - #0
         self.expanded = self.expanded + 1
-        return [(state.do_move(0, move), move, move.piece.get_num_tiles()) for move in state.get_legal_moves(0)]
+        return [(state.do_move(0, move), move, move.piece.get_num_tiles()) for
+                move in state.get_legal_moves(0)]
 
     def get_cost_of_actions(self, actions):
         """
@@ -149,6 +178,12 @@ class BlokusCoverProblem(SearchProblem):
         be composed of legal moves
         """
         "*** YOUR CODE HERE ***"
+
+        cost = 0
+        for move in actions:
+            cost += move.piece.get_num_tiles()
+        return cost # TODO: is this KEFEL code ?
+
         util.raiseNotDefined()
 
 
@@ -163,7 +198,8 @@ class ClosestLocationSearch:
     but the objective is speed, not optimality.
     """
 
-    def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=(0, 0)):
+    def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0),
+                 targets=(0, 0)):
         self.expanded = 0
         self.targets = targets.copy()
         "*** YOUR CODE HERE ***"
@@ -197,13 +233,13 @@ class ClosestLocationSearch:
         util.raiseNotDefined()
 
 
-
 class MiniContestSearch:
     """
     Implement your contest entry here
     """
 
-    def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0), targets=(0, 0)):
+    def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0),
+                 targets=(0, 0)):
         self.targets = targets.copy()
         "*** YOUR CODE HERE ***"
 
@@ -216,4 +252,3 @@ class MiniContestSearch:
     def solve(self):
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
-

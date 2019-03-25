@@ -5,14 +5,11 @@ In search.py, you will implement generic search algorithms
 import util
 import copy
 
-
 PATH = 1
-
 
 STATE = 0
 ACTION = 1
 COST = 2
-
 
 
 class SearchProblem:
@@ -59,8 +56,6 @@ STATE
         util.raiseNotDefined()
 
 
-
-
 def depth_first_search(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -92,7 +87,6 @@ def depth_first_search(problem):
     return []
 
 
-
 def breadth_first_search(problem):
     """
     Search the shallowest nodes in the search tree first.
@@ -121,7 +115,6 @@ def breadth_first_search(problem):
     return []
 
 
-
 def uniform_cost_search(problem):
     """
     Search the node of least total cost first.
@@ -140,7 +133,7 @@ def uniform_cost_search(problem):
             for triplet in neighbors:
                 path_to = current[PATH]
                 path_to.append(triplet[ACTION])
-                neighbor = (triplet[STATE], path_to, current[COST]+triplet[COST])
+                neighbor = (triplet[STATE], path_to, current[COST] + triplet[COST])
                 fringe.push(neighbor, neighbor[COST])
             visited.add(current[STATE])
     util.raiseNotDefined()
@@ -173,12 +166,12 @@ def a_star_search(problem, heuristic=null_heuristic):
             for triplet in neighbors:
                 path_to = current[PATH]
                 path_to.append(triplet[ACTION])
-                neighbor = (triplet[STATE], path_to, triplet[COST] + heuristic(triplet[STATE], problem))
+                neighbor = (triplet[STATE], path_to,
+                            triplet[COST] + heuristic(triplet[STATE], problem))
                 fringe.push(neighbor, neighbor[COST])
             visited.add(current[STATE])
 
     util.raiseNotDefined()
-
 
 
 # Abbreviations
