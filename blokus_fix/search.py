@@ -144,7 +144,8 @@ def uniform_cost_search(problem):
                 neighbor = Node(triplet[STATE], path_to, current.cost + triplet[COST])
                 fringe.push(neighbor, neighbor.cost)
             visited.add(current.state)
-    util.raiseNotDefined()
+    return []
+    # util.raiseNotDefined()
 
 
 def null_heuristic(state, problem=None):

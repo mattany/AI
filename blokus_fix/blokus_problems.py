@@ -4,8 +4,8 @@ import util
 
 
 FREE = -1
-X = 0
-Y = 1
+X = 1
+Y = 0
 
 
 class BlokusFillProblem(SearchProblem):
@@ -118,6 +118,7 @@ class BlokusCornersProblem(SearchProblem):
     def get_corners(self):
         return [i for i in self.corners]
 
+
 def blokus_corners_heuristic(state, problem):
     """
     Your heuristic for the BlokusCornersProblem goes here.
@@ -153,8 +154,6 @@ def blokus_corners_heuristic(state, problem):
     return free_corners
 
 
-
-
 class BlokusCoverProblem(SearchProblem):
     def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0),
                  targets=[(0, 0)]):
@@ -170,13 +169,10 @@ class BlokusCoverProblem(SearchProblem):
         return self.board
 
     def is_goal_state(self, state):
-        "*** YOUR CODE HERE ***"
-
         for target in self.targets:
             if state.get_position(target[X], target[Y]) == FREE:
                 return False
-
-        #util.raiseNotDefined()
+        return True
 
     def get_successors(self, state):
         """
@@ -205,9 +201,7 @@ class BlokusCoverProblem(SearchProblem):
         cost = 0
         for move in actions:
             cost += move.piece.get_num_tiles()
-        return cost # TODO: is this KEFEL code ?
-
-        util.raiseNotDefined()
+        return cost   # TODO: is this KEFEL code ?
 
 
 def blokus_cover_heuristic(state, problem):
