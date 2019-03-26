@@ -136,14 +136,14 @@ def uniform_cost_search(problem):
         current = fringe.pop()
         if problem.is_goal_state(current.state):
             return current.path
-        elif current not in visited:
+        elif current.state not in visited:
             neighbors = problem.get_successors(current.state)
             for triplet in neighbors:
                 path_to = copy.deepcopy(current.path)
                 path_to.append(triplet[ACTION])
                 neighbor = Node(triplet[STATE], path_to, current.cost + triplet[COST])
                 fringe.push(neighbor, neighbor.cost)
-            visited.add(current)
+            visited.add(current.state)
     util.raiseNotDefined()
 
 
@@ -175,9 +175,8 @@ def a_star_search(problem, heuristic=null_heuristic):
             for triplet in neighbors:
                 path_to = copy.deepcopy(current.path)
                 path_to.append(triplet[ACTION])
-                cost = current.cost + triplet[COST] + heuristic(triplet[STATE], problem)
-                neighbor = Node(triplet[STATE], path_to, cost)
-                fringe.push(neighbor, neighbor.cost)
+                neighbor = Node(triplet[STATE], path_to, current.cost + triplet[COST])
+                fringe.push(neighbor, neighbor.cost + heuristic(triplet[STATE], problem))
             visited.add(current.state)
     util.raiseNotDefined()
 
