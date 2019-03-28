@@ -6,7 +6,7 @@ import util
 FREE = -1
 Y = 0
 X = 1
-
+BIG_NUMBER = 100000000
 
 class BlokusFillProblem(SearchProblem):
     """
@@ -119,9 +119,20 @@ class BlokusCornersProblem(SearchProblem):
     #     return [i for i in self.corners]
 
 
+def manhattan_heuristic(state, problem, targets):
+    width = problem.board.board_w
+    height = problem.board.board_h
+    distance_to_targets = [BIG_NUMBER for i in targets]
+    for y  in range(width):
+        for x in range(height):
+            if not state.get_position(y, x) == FREE:
+                for i, target in enumerate(targets):
+                    if
+
 
 
 def get_adjacent(coordinates, maxY, maxX):
+
     y = coordinates[Y]
     x = coordinates[X]
     adjacent = list()
@@ -136,17 +147,18 @@ def get_adjacent(coordinates, maxY, maxX):
     return adjacent
 
 
-def general_heuristic(state, problem, goals):
+def general_heuristic(state, problem, targets):
 
-    free_goals = len(goals)
-    for goal in goals:
-        if not state.get_position(goal[Y], goal[X]) == FREE:
+    free_goals = len(targets)
+    for target in targets:
+        if not state.get_position(target[Y], target[X]) == FREE:
             free_goals -= 1
         else:
-            for neighbor in (get_adjacent(goal, problem.board.board_w - 1, problem.board.board_h - 1)):
+            for neighbor in (get_adjacent(target, problem.board.board_w - 1, problem.board.board_h - 1)):
                 if not state.get_position(neighbor[Y], neighbor[X]) == FREE:
-                    return 10000000
+                    return BIG_NUMBER
     return free_goals
+
 
 
 def blokus_corners_heuristic(state, problem):
@@ -164,8 +176,6 @@ def blokus_corners_heuristic(state, problem):
     """
 
     return general_heuristic(state, problem, problem.corners)
-
-
 
 
 class BlokusCoverProblem(SearchProblem):
@@ -216,7 +226,6 @@ class BlokusCoverProblem(SearchProblem):
         for move in actions:
             cost += move.piece.get_num_tiles()
         return cost   # TODO: is this KEFEL code ?
-
 
 
 def blokus_cover_heuristic(state, problem):
