@@ -4,7 +4,7 @@ In search.py, you will implement generic search algorithms
 
 import util
 import copy
-
+import displays
 PATH = 1
 
 STATE = 0
@@ -89,11 +89,11 @@ def depth_first_search(problem):
 
 class Node:
 
-    def __init__(self, state, path, cost):
+    def __init__(self, state, path, cost, scores=[]):
         self.state = state
         self.path = path
         self.cost = cost
-
+        self.scores = scores
 
 def breadth_first_search(problem):
     """
@@ -163,6 +163,7 @@ def a_star_search(problem, heuristic=null_heuristic):
     """
     "*** YOUR CODE HERE ***"
 
+
     start_state = problem.get_start_state()
     current = Node(start_state, [], heuristic(start_state, problem))
     fringe = util.PriorityQueue()
@@ -171,14 +172,22 @@ def a_star_search(problem, heuristic=null_heuristic):
     while not fringe.isEmpty():
         current = fringe.pop()
         if problem.is_goal_state(current.state):
+
+
+            #TODO delete
+            print(current.scores)
+
             return current.path
         elif current.state not in visited:
             neighbors = problem.get_successors(current.state)
             for triplet in neighbors:
                 path_to = copy.deepcopy(current.path)
+                scores_to = copy.deepcopy(current.scores)
                 path_to.append(triplet[ACTION])
-                neighbor = Node(triplet[STATE], path_to, current.cost + triplet[COST])
-                fringe.push(neighbor, neighbor.cost + heuristic(triplet[STATE], problem))
+                scores_to.append(heuristic(triplet[STATE], problem))
+                neighbor = Node(triplet[STATE], path_to, current.cost + triplet[COST], scores_to)
+                # print("AAAAAA", neighbor.scores[-1])
+                fringe.push(neighbor, neighbor.cost + neighbor.scores[-1])
             visited.add(current.state)
     return []
 

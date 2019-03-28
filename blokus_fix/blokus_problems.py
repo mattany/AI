@@ -120,7 +120,10 @@ class BlokusCornersProblem(SearchProblem):
     #     return [i for i in self.corners]
 
 
-def manhattan_heuristic(state, problem, targets):
+def distance(xy1, xy2):
+    return math.sqrt(abs(xy1[0] - xy2[0])**2 + abs(xy1[1] - xy2[1])**2)
+
+def distance_heuristic(state, problem, targets):
 
     width = problem.board.board_w
     height = problem.board.board_h
@@ -129,7 +132,7 @@ def manhattan_heuristic(state, problem, targets):
         for x in range(height):
             if not state.get_position(y, x) == FREE:
                 for i, target in enumerate(targets):
-                    dist = util.manhattanDistance(target, (x,y))
+                    dist = util.manhattanDistance((x,y), target) / 1.5
                     if dist < distance_to_targets[i]:
                         distance_to_targets[i] = dist
     return sum(distance_to_targets)
@@ -162,8 +165,7 @@ def combination_heuristic(state, problem, targets):
     if target_neighbors_heuristic(state, problem, targets):
         return BIG_NUMBER
     # heuristic_sum = free_targets_heuristic(state, targets)
-    heuristic_sum = manhattan_heuristic(state, problem, targets)
-    print(heuristic_sum)
+    heuristic_sum = distance_heuristic(state, problem, targets)
     return heuristic_sum
 
 
