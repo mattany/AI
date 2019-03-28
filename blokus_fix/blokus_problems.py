@@ -120,6 +120,7 @@ class BlokusCornersProblem(SearchProblem):
 
 
 def manhattan_heuristic(state, problem, targets):
+
     width = problem.board.board_w
     height = problem.board.board_h
     distance_to_targets = [BIG_NUMBER for i in targets]
@@ -127,8 +128,17 @@ def manhattan_heuristic(state, problem, targets):
         for x in range(height):
             if not state.get_position(y, x) == FREE:
                 for i, target in enumerate(targets):
-                    if
+                    dist = util.manhattanDistance(target, (x,y))
+                    if dist < distance_to_targets[i]:
+                        distance_to_targets[i] = dist
+    return sum(distance_to_targets)
 
+def free_targets_heuristic(state, targets):
+    free_targets = len(targets)
+    for target in targets:
+        if not state.get_position(target[Y], target[X]) == FREE:
+            free_targets -= 1
+    return free_targets
 
 
 def get_adjacent(coordinates, maxY, maxX):
@@ -146,18 +156,22 @@ def get_adjacent(coordinates, maxY, maxX):
         adjacent.append((y, x - 1))
     return adjacent
 
+def combination_heuristic(state, problem, targets):
+    # If the path to one of the targets is blocked
+    if target_neighbors_heuristic(state, problem, targets):
+        return BIG_NUMBER
+    # heuristic_sum = free_targets_heuristic(state, targets)
+    heuristic_sum = manhattan_heuristic(state, problem, targets)
+    return heuristic_sum
 
-def general_heuristic(state, problem, targets):
 
-    free_goals = len(targets)
+def target_neighbors_heuristic(state, problem, targets):
     for target in targets:
-        if not state.get_position(target[Y], target[X]) == FREE:
-            free_goals -= 1
-        else:
+        if state.get_position(target[Y], target[X]) == FREE:
             for neighbor in (get_adjacent(target, problem.board.board_w - 1, problem.board.board_h - 1)):
                 if not state.get_position(neighbor[Y], neighbor[X]) == FREE:
                     return BIG_NUMBER
-    return free_goals
+    return 0
 
 
 
@@ -175,7 +189,7 @@ def blokus_corners_heuristic(state, problem):
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
 
-    return general_heuristic(state, problem, problem.corners)
+    return combination_heuristic(state, problem, problem.corners)
 
 
 class BlokusCoverProblem(SearchProblem):
@@ -231,7 +245,7 @@ class BlokusCoverProblem(SearchProblem):
 def blokus_cover_heuristic(state, problem):
     "*** YOUR CODE HERE ***"
 
-    return general_heuristic(state, problem, problem.targets)
+    return combination_heuristic(state, problem, problem.targets)
     util.raiseNotDefined()
 
 

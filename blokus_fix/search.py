@@ -180,7 +180,7 @@ def a_star_search(problem, heuristic=null_heuristic):
                 neighbor = Node(triplet[STATE], path_to, current.cost + triplet[COST])
                 fringe.push(neighbor, neighbor.cost + heuristic(triplet[STATE], problem))
             visited.add(current.state)
-    util.raiseNotDefined()
+    return []
 
 
 # Abbreviations
