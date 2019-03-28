@@ -156,6 +156,7 @@ def null_heuristic(state, problem=None):
     return 0
 
 
+
 def a_star_search(problem, heuristic=null_heuristic):
     """
     Search the node that has the lowest combined cost and heuristic first.

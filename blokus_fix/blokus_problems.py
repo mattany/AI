@@ -79,7 +79,7 @@ class BlokusCornersProblem(SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         for corner in self.corners:
-            if state.get_position(corner[Y], corner[X]) == FREE:
+            if state.get_position(corner[X], corner[Y]) == FREE:
                 return False
         return True
 
@@ -119,7 +119,25 @@ class BlokusCornersProblem(SearchProblem):
         return [i for i in self.corners]
 
 
+
+
+def get_adjacent(coordinates, maxY, maxX):
+    y = coordinates[Y]
+    x = coordinates[X]
+    adjacent = list()
+    if y + 1 <= maxY:
+        adjacent.append((y + 1, x))
+    if x + 1 <= maxX:
+        adjacent.append((y, x + 1))
+    if y - 1 >= 0:
+        adjacent.append((y - 1, x))
+    if x - 1 >= 0:
+        adjacent.append((y, x - 1))
+    return adjacent
+
+
 def blokus_corners_heuristic(state, problem):
+
     """
     Your heuristic for the BlokusCornersProblem goes here.
 
@@ -133,25 +151,16 @@ def blokus_corners_heuristic(state, problem):
     """
 
     corners = problem.get_corners()
-
     free_corners = 4
     for i, corner in enumerate(corners):
         if not state.get_position(corner[Y], corner[X]) == FREE:
             free_corners -= 1
         else:
-            if i == 0 and (not state.get_position(corner[Y] + 1, corner[X]) == FREE
-                           or not state.get_position(corner[Y], corner[X] + 1) == FREE):
-                return 100000000
-            if i == 1 and (not state.get_position(corner[Y] - 1, corner[X]) == FREE
-                           or not state.get_position(corner[Y], corner[X] + 1) == FREE):
-                return 100000000
-            if i == 2 and (not state.get_position(corner[Y] + 1, corner[X]) == FREE
-                           or not state.get_position(corner[Y], corner[X] - 1) == FREE):
-                return 100000000
-            if i == 3 and (not state.get_position(corner[Y] - 1, corner[X]) == FREE
-                           or not state.get_position(corner[Y], corner[X] - 1) == FREE):
-                return 100000000
+            for neighbor in (get_adjacent(corner, problem.board.board_w, problem.board.board_h)):
+                if not state.get_position(neighbor) == FREE:
+                    return 10000000
     return free_corners
+
 
 
 class BlokusCoverProblem(SearchProblem):
@@ -170,7 +179,7 @@ class BlokusCoverProblem(SearchProblem):
 
     def is_goal_state(self, state):
         for target in self.targets:
-            if state.get_position(target[Y], target[X]) == FREE:
+            if state.get_position(target[X], target[Y]) == FREE:
                 return False
         return True
 
