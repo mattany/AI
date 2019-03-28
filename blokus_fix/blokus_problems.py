@@ -115,8 +115,8 @@ class BlokusCornersProblem(SearchProblem):
 
         #util.raiseNotDefined()
 
-    def get_corners(self):
-        return [i for i in self.corners]
+    # def get_corners(self):
+    #     return [i for i in self.corners]
 
 
 
@@ -136,6 +136,19 @@ def get_adjacent(coordinates, maxY, maxX):
     return adjacent
 
 
+def general_heuristic(state, problem, goals):
+
+    free_goals = len(goals)
+    for goal in goals:
+        if not state.get_position(goal[Y], goal[X]) == FREE:
+            free_goals -= 1
+        else:
+            for neighbor in (get_adjacent(goal, problem.board.board_w - 1, problem.board.board_h - 1)):
+                if not state.get_position(neighbor[Y], neighbor[X]) == FREE:
+                    return 10000000
+    return free_goals
+
+
 def blokus_corners_heuristic(state, problem):
 
     """
@@ -150,16 +163,8 @@ def blokus_corners_heuristic(state, problem):
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
 
-    corners = problem.get_corners()
-    free_corners = 4
-    for i, corner in enumerate(corners):
-        if not state.get_position(corner[Y], corner[X]) == FREE:
-            free_corners -= 1
-        else:
-            for neighbor in (get_adjacent(corner, problem.board.board_w, problem.board.board_h)):
-                if not state.get_position(neighbor) == FREE:
-                    return 10000000
-    return free_corners
+    return general_heuristic(state, problem, problem.corners)
+
 
 
 
@@ -213,8 +218,11 @@ class BlokusCoverProblem(SearchProblem):
         return cost   # TODO: is this KEFEL code ?
 
 
+
 def blokus_cover_heuristic(state, problem):
     "*** YOUR CODE HERE ***"
+
+    return general_heuristic(state, problem, problem.targets)
     util.raiseNotDefined()
 
 
