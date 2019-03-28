@@ -1,6 +1,7 @@
 from board import Board
 from search import SearchProblem, ucs
 import util
+import math
 
 
 FREE = -1
@@ -162,6 +163,7 @@ def combination_heuristic(state, problem, targets):
         return BIG_NUMBER
     # heuristic_sum = free_targets_heuristic(state, targets)
     heuristic_sum = manhattan_heuristic(state, problem, targets)
+    print(heuristic_sum)
     return heuristic_sum
 
 
