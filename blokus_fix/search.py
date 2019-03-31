@@ -71,17 +71,12 @@ def depth_first_search(problem):
 
     while not fringe.isEmpty():
         current_node = fringe.pop()
-
         if problem.is_goal_state(current_node[STATE]):
             return current_node[PATH]
-
         elif current_node[STATE] not in visited:
             neighbors = problem.get_successors(current_node[STATE])
-
             for neighbor in neighbors:
-                path_to_neighbor = copy.deepcopy(current_node[PATH])
-                path_to_neighbor.append(neighbor[ACTION])
-                fringe.push((neighbor[STATE], path_to_neighbor))
+                fringe.push((neighbor[STATE], current_node[PATH]+[neighbor[ACTION]]))
             visited.add(current_node[STATE])
     return []
 

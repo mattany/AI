@@ -1,7 +1,7 @@
 from board import Board
 from search import SearchProblem, ucs
 import util
-import math
+import numpy as np
 
 FREE = -1
 Y = 0
@@ -125,22 +125,6 @@ class BlokusCornersProblem(SearchProblem):
     #     return [i for i in self.corners]
 
 
-def chebyshev_distance(xy1, xy2):
-    return min(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
-
-
-def distance_heuristic(state, problem, targets):
-    return max(min_distances_to_targets(problem, state, chebyshev_distance, targets))
-
-
-# def free_targets_heuristic(state, targets):
-#     free_targets = len(targets)
-#     for target in targets:
-#         if not state.get_position(target[Y], target[X]) == FREE:
-#             free_targets -= 1
-#     return free_targets
-
-
 def get_adjacent(coordinates, maxY, maxX):
     y = coordinates[Y]
     x = coordinates[X]
@@ -155,15 +139,39 @@ def get_adjacent(coordinates, maxY, maxX):
         adjacent.append((y, x - 1))
     return adjacent
 
+def min_distances_to_targets(problem, state, distance_metric, targets):
+    width = problem.board.board_w
+    height = problem.board.board_h
+    min_distances = [ILLEGAL_PATH for i in targets]
+    for y in range(width):
+        for x in range(height):
+            if not state.get_position(y, x) == FREE:
+                for i, target in enumerate(targets):
+                    dist = distance_metric((x, y), target)
+                    if dist < min_distances[i]:
+                        min_distances[i] = dist
+    return min_distances
 
-def combination_heuristic(state, problem, targets):
-    # If the path to one of the targets is blocked
-    if target_neighbors_heuristic(state, problem, targets):
-        return ILLEGAL_PATH
-    return distance_heuristic(state, problem, targets)
+def chebyshev_distance(xy1, xy2):
+    return min(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
+
+
+def distance_heuristic(state, problem, targets):
+    return max(min_distances_to_targets(problem, state, chebyshev_distance, targets))
+
+"""
+:return the number of free targets
+"""
+def free_targets_heuristic(state, targets):
+    free_targets = len(targets)
+    for target in targets:
+        if not state.get_position(target[Y], target[X]) == FREE:
+            free_targets -= 1
+    return free_targets
 
 
 def target_neighbors_heuristic(state, problem, targets):
+
     for target in targets:
         if state.get_position(target[Y], target[X]) == FREE:
             for neighbor in (get_adjacent(target, problem.board.board_w - 1,
@@ -171,6 +179,26 @@ def target_neighbors_heuristic(state, problem, targets):
                 if not state.get_position(neighbor[Y], neighbor[X]) == FREE:
                     return ILLEGAL_PATH
     return 0
+
+
+def min_needed_cost(state, targets):
+    number_of_targets_left = free_targets_heuristic(state, targets)
+    pieces = np.array(state.piece_list.pieces)
+    sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
+    min_cost = 0
+    index = number_of_targets_left - 1
+    while index >= 0:
+        min_cost += sorted_available_pieces[index].num_tiles
+        index -= 1
+    return min_cost
+
+
+def combination_heuristic(state, problem, targets):
+    # If the path to one of the targets is blocked
+    if target_neighbors_heuristic(state, problem, targets):
+        return ILLEGAL_PATH
+    return min_needed_cost(state, targets)
+
 
 
 def blokus_corners_heuristic(state, problem):
@@ -245,18 +273,6 @@ def blokus_cover_heuristic(state, problem):
     return combination_heuristic(state, problem, problem.targets)
 
 
-def min_distances_to_targets(problem, state, distance_metric, targets):
-    width = problem.board.board_w
-    height = problem.board.board_h
-    min_distances = [ILLEGAL_PATH for i in targets]
-    for y in range(width):
-        for x in range(height):
-            if not state.get_position(y, x) == FREE:
-                for i, target in enumerate(targets):
-                    dist = distance_metric((x, y), target)
-                    if dist < min_distances[i]:
-                        min_distances[i] = dist
-    return min_distances
 
 
 class ClosestLocationSearch:
