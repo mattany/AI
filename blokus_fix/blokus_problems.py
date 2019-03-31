@@ -6,7 +6,7 @@ import math
 FREE = -1
 Y = 0
 X = 1
-BIG_NUMBER = 100000000
+ILLEGAL_PATH = 100000000
 
 STATE = 0
 ACTION = 1
@@ -125,22 +125,12 @@ class BlokusCornersProblem(SearchProblem):
     #     return [i for i in self.corners]
 
 
-def distance(xy1, xy2):
-    return math.sqrt(abs(xy1[0] - xy2[0]) ** 2 + abs(xy1[1] - xy2[1]) ** 2)
+def chebyshev_distance(xy1, xy2):
+    return min(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
 
 
 def distance_heuristic(state, problem, targets):
-    width = problem.board.board_w
-    height = problem.board.board_h
-    distance_to_targets = [BIG_NUMBER for i in targets]
-    for y in range(width):
-        for x in range(height):
-            if not state.get_position(y, x) == FREE:
-                for i, target in enumerate(targets):
-                    dist = util.manhattanDistance((x, y), target) / 1.5
-                    if dist < distance_to_targets[i]:
-                        distance_to_targets[i] = dist
-    return sum(distance_to_targets)
+    return max(min_distances_to_targets(problem, state, chebyshev_distance, targets))
 
 
 def free_targets_heuristic(state, targets):
@@ -169,10 +159,8 @@ def get_adjacent(coordinates, maxY, maxX):
 def combination_heuristic(state, problem, targets):
     # If the path to one of the targets is blocked
     if target_neighbors_heuristic(state, problem, targets):
-        return BIG_NUMBER
-    # heuristic_sum = free_targets_heuristic(state, targets)
-    heuristic_sum = distance_heuristic(state, problem, targets)
-    return heuristic_sum
+        return ILLEGAL_PATH
+    return free_targets_heuristic(state, targets)
 
 
 def target_neighbors_heuristic(state, problem, targets):
@@ -181,7 +169,7 @@ def target_neighbors_heuristic(state, problem, targets):
             for neighbor in (get_adjacent(target, problem.board.board_w - 1,
                                           problem.board.board_h - 1)):
                 if not state.get_position(neighbor[Y], neighbor[X]) == FREE:
-                    return BIG_NUMBER
+                    return ILLEGAL_PATH
     return 0
 
 
@@ -257,18 +245,18 @@ def blokus_cover_heuristic(state, problem):
     return combination_heuristic(state, problem, problem.targets)
 
 
-def closest_goal(problem, state, targets):
+def min_distances_to_targets(problem, state, distance_metric, targets):
     width = problem.board.board_w
     height = problem.board.board_h
-    distance_to_targets = [BIG_NUMBER for i in targets]
+    min_distances = [ILLEGAL_PATH for i in targets]
     for y in range(width):
         for x in range(height):
             if not state.get_position(y, x) == FREE:
                 for i, target in enumerate(targets):
-                    dist = util.manhattanDistance((x, y), target)
-                    if dist < distance_to_targets[i]:
-                        distance_to_targets[i] = dist
-    return distance_to_targets
+                    dist = distance_metric((x, y), target)
+                    if dist < min_distances[i]:
+                        min_distances[i] = dist
+    return min_distances
 
 
 class ClosestLocationSearch:
@@ -320,18 +308,18 @@ class ClosestLocationSearch:
         backtrace = []
         current_state = self.get_start_state()
         while not self.is_goal_state(current_state):
-            current_state_distance_targets = closest_goal(self, current_state, self.targets)
-            current_state_distance_target = min(i for i in current_state_distance_targets if i > 0)
+            distances = min_distances_to_targets(self, current_state, util.manhattanDistance, self.targets)
+            min_distance = min(i for i in distances if i > 0)
             # select the closest target base on the distance from each target
-            target = self.targets[current_state_distance_targets.index(current_state_distance_target)]
+            target = self.targets[distances.index(min_distance)]
             # get closer to target each time until its covered
             while current_state.get_position(target[X], target[Y]) == FREE:
                 best_action = None
                 successors = self.get_successors(current_state)
                 for successor in successors:
-                    successor_distance_from_target = closest_goal(self, successor[STATE], [target])[0]
-                    if successor_distance_from_target < current_state_distance_target:
-                        current_state_distance_target = successor_distance_from_target
+                    distance = min_distances_to_targets(self, successor[STATE], util.manhattanDistance, [target])[0]
+                    if distance < min_distance:
+                        min_distance = distance
                         current_state = successor[STATE]
                         best_action = successor[ACTION]
                 backtrace.append(best_action)
