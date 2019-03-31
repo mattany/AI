@@ -170,7 +170,7 @@ def free_targets_heuristic(state, targets):
     return free_targets
 
 
-def target_neighbors_heuristic(state, problem, targets):
+def dead_end_heuristic(state, problem, targets):
 
     for target in targets:
         if state.get_position(target[Y], target[X]) == FREE:
@@ -197,7 +197,7 @@ def min_needed_cost(state, targets):
 
 def combination_heuristic(state, problem, targets):
     # If the path to one of the targets is blocked
-    if target_neighbors_heuristic(state, problem, targets):
+    if dead_end_heuristic(state, problem, targets):
         return ILLEGAL_PATH
     return min_needed_cost(state, targets)
 
