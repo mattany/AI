@@ -268,7 +268,7 @@ def closest_goal(problem, state, targets):
                     dist = util.manhattanDistance((x, y), target)
                     if dist < distance_to_targets[i]:
                         distance_to_targets[i] = dist
-    return min(distance_to_targets)
+    return distance_to_targets
 
 
 class ClosestLocationSearch:
@@ -337,14 +337,14 @@ class ClosestLocationSearch:
         current_state = self.get_start_state()
         backtrace = []
         while not self.is_goal_state(current_state):
-            current_state_distance_target = closest_goal(self, current_state, self.targets)
-            target_index = self.targets.index(current_state_distance_target if current_state_distance_target != BIG_NUMBER else self.targets[0])
-            target = self.targets[target_index]
+            current_state_distance_targets = closest_goal(self, current_state, self.targets)
+            current_state_distance_target = min(i for i in current_state_distance_targets if i > 0)
+            target = self.targets[current_state_distance_targets.index(current_state_distance_target)]
             while current_state.get_position(target[X], target[Y]) == FREE:
                 print(backtrace)
                 successors = self.get_successors(current_state)
                 for successor in successors:
-                    successor_distance_from_target = closest_goal(self, successor[STATE], [target])
+                    successor_distance_from_target = closest_goal(self, successor[STATE], [target])[0]
                     if successor_distance_from_target < current_state_distance_target:
                         current_state_distance_target = successor_distance_from_target
                         current_state = successor[STATE]
