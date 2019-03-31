@@ -282,7 +282,6 @@ class ClosestLocationSearch:
         self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.expanded = 0
         self.targets = targets.copy()
-        "*** YOUR CODE HERE ***"
 
     def get_start_state(self):
         """
@@ -316,32 +315,18 @@ class ClosestLocationSearch:
         This method should return a sequence of actions that covers all target
         locations on the board. This time we trade optimality for speed.
         Therefore, your agent should try and cover one target location at a time.
-         Each time, aiming for the closest uncovered location.
-        You may define helpful functions as you wish.
-
-        Probably a good way to start, would be something like this --
-
-        current_state = self.board.__copy__()
-        backtrace = []
-
-        while ....
-
-            actions = set of actions that covers the closets uncovered target location
-            add actions to backtrace
-
-        return backtrace
+        Each time, aiming for the closest uncovered location.
         """
-        "*** YOUR CODE HERE ***"
-
-
-        current_state = self.get_start_state()
         backtrace = []
+        current_state = self.get_start_state()
         while not self.is_goal_state(current_state):
             current_state_distance_targets = closest_goal(self, current_state, self.targets)
             current_state_distance_target = min(i for i in current_state_distance_targets if i > 0)
+            # select the closest target base on the distance from each target
             target = self.targets[current_state_distance_targets.index(current_state_distance_target)]
+            # get closer to target each time until its covered
             while current_state.get_position(target[X], target[Y]) == FREE:
-                print(backtrace)
+                best_action = None
                 successors = self.get_successors(current_state)
                 for successor in successors:
                     successor_distance_from_target = closest_goal(self, successor[STATE], [target])[0]
@@ -351,11 +336,6 @@ class ClosestLocationSearch:
                         best_action = successor[ACTION]
                 backtrace.append(best_action)
         return backtrace
-
-        # second try - heuristic that solve the problem with GBFS
-
-
-
 
 
 class MiniContestSearch:

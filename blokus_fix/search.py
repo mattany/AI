@@ -146,42 +146,6 @@ def uniform_cost_search(problem):
             visited.add(current.state)
     return []
 
-# def greedy_best_first_search(problem, heuristic):
-#     """
-#     Search the node of least heuristic cost first.
-#     """
-#     start_state = problem.get_start_state()
-#     current = Node(start_state, [], 0)
-#     fringe = util.PriorityQueue()
-#     visited = set()
-#     fringe.push(current, current.cost)
-#     while not fringe.isEmpty():
-#         current = fringe.pop()
-#         if problem.is_goal_state(current.state):
-#             return current.path
-#         elif current.state not in visited:
-#             neighbors = problem.get_successors(current.state)
-#             for triplet in neighbors:
-#                 path_to = copy.deepcopy(current.path)
-#                 path_to.append(triplet[ACTION])
-#                 neighbor = Node(triplet[STATE], path_to, current.cost + triplet[COST])
-#                 fringe.push(neighbor, neighbor.cost)
-#             visited.add(current.state)
-#     return []
-#
-# def closest_goal(problem, state, targets):
-#     width = problem.board.board_w
-#     height = problem.board.board_h
-#     distance_to_targets = [100000000 for i in targets]
-#     for y in range(width):
-#         for x in range(height):
-#             if not state.get_position(y, x) == -1:
-#                 for i, target in enumerate(targets):
-#                     dist = util.manhattanDistance((x, y), target)
-#                     if dist < distance_to_targets[i]:
-#                         distance_to_targets[i] = dist
-#     return min(distance_to_targets)
-
 
 def null_heuristic(state, problem=None):
     """
