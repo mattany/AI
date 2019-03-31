@@ -133,12 +133,12 @@ def distance_heuristic(state, problem, targets):
     return max(min_distances_to_targets(problem, state, chebyshev_distance, targets))
 
 
-def free_targets_heuristic(state, targets):
-    free_targets = len(targets)
-    for target in targets:
-        if not state.get_position(target[Y], target[X]) == FREE:
-            free_targets -= 1
-    return free_targets
+# def free_targets_heuristic(state, targets):
+#     free_targets = len(targets)
+#     for target in targets:
+#         if not state.get_position(target[Y], target[X]) == FREE:
+#             free_targets -= 1
+#     return free_targets
 
 
 def get_adjacent(coordinates, maxY, maxX):
@@ -160,7 +160,7 @@ def combination_heuristic(state, problem, targets):
     # If the path to one of the targets is blocked
     if target_neighbors_heuristic(state, problem, targets):
         return ILLEGAL_PATH
-    return free_targets_heuristic(state, targets)
+    return distance_heuristic(state, problem, targets)
 
 
 def target_neighbors_heuristic(state, problem, targets):

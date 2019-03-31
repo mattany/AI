@@ -3,7 +3,6 @@ In search.py, you will implement generic search algorithms
 """
 
 import util
-import copy
 import displays
 PATH = 1
 
@@ -95,6 +94,7 @@ class Node:
         self.cost = cost
         self.scores = scores
 
+
 def breadth_first_search(problem):
     """
     Search the shallowest nodes in the search tree first.
@@ -116,9 +116,7 @@ def breadth_first_search(problem):
             neighbors = problem.get_successors(current_node[STATE])
 
             for neighbor in neighbors:
-                path_to_neighbor = copy.deepcopy(current_node[PATH])
-                path_to_neighbor.append(neighbor[ACTION])
-                fringe.push((neighbor[STATE], path_to_neighbor))
+                fringe.push((neighbor[STATE], current_node[PATH] + [neighbor[ACTION]]))
             visited.add(current_node[STATE])
     return []
 
@@ -139,9 +137,7 @@ def uniform_cost_search(problem):
         elif current.state not in visited:
             neighbors = problem.get_successors(current.state)
             for triplet in neighbors:
-                path_to = copy.deepcopy(current.path)
-                path_to.append(triplet[ACTION])
-                neighbor = Node(triplet[STATE], path_to, current.cost + triplet[COST])
+                neighbor = Node(triplet[STATE], current.path + [triplet[ACTION]], current.cost + triplet[COST])
                 fringe.push(neighbor, neighbor.cost)
             visited.add(current.state)
     return []
@@ -155,13 +151,10 @@ def null_heuristic(state, problem=None):
     return 0
 
 
-
 def a_star_search(problem, heuristic=null_heuristic):
     """
     Search the node that has the lowest combined cost and heuristic first.
     """
-    "*** YOUR CODE HERE ***"
-
 
     start_state = problem.get_start_state()
     current = Node(start_state, [], heuristic(start_state, problem))
@@ -171,22 +164,12 @@ def a_star_search(problem, heuristic=null_heuristic):
     while not fringe.isEmpty():
         current = fringe.pop()
         if problem.is_goal_state(current.state):
-
-
-            #TODO delete
-            print(current.scores)
-
             return current.path
         elif current.state not in visited:
             neighbors = problem.get_successors(current.state)
             for triplet in neighbors:
-                path_to = copy.deepcopy(current.path)
-                scores_to = copy.deepcopy(current.scores)
-                path_to.append(triplet[ACTION])
-                scores_to.append(heuristic(triplet[STATE], problem))
-                neighbor = Node(triplet[STATE], path_to, current.cost + triplet[COST], scores_to)
-                # print("AAAAAA", neighbor.scores[-1])
-                fringe.push(neighbor, neighbor.cost + neighbor.scores[-1])
+                neighbor = Node(triplet[STATE], current.path + [triplet[ACTION]], current.cost + triplet[COST])
+                fringe.push(neighbor, neighbor.cost + heuristic(neighbor.state, problem))
             visited.add(current.state)
     return []
 
