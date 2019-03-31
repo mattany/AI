@@ -186,6 +186,8 @@ def min_needed_cost(state, targets):
     pieces = np.array(state.piece_list.pieces)
     sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
     min_cost = 0
+    if number_of_targets_left > len(sorted_available_pieces):
+        return ILLEGAL_PATH
     index = number_of_targets_left - 1
     while index >= 0:
         min_cost += sorted_available_pieces[index].num_tiles
