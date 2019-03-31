@@ -3,11 +3,14 @@ from search import SearchProblem, ucs
 import util
 import math
 
-
 FREE = -1
 Y = 0
 X = 1
 BIG_NUMBER = 100000000
+
+STATE = 0
+ACTION = 1
+
 
 class BlokusFillProblem(SearchProblem):
     """
@@ -65,7 +68,9 @@ class BlokusCornersProblem(SearchProblem):
         self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.expanded = 0
         "*** YOUR CODE HERE ***"
-        self.corners = ((0, 0), (board_w-1, 0), (0, board_h-1), (board_w-1, board_h-1))
+        self.corners = (
+            (0, 0), (board_w - 1, 0), (0, board_h - 1),
+            (board_w - 1, board_h - 1))
 
     def get_start_state(self):
         """
@@ -114,28 +119,29 @@ class BlokusCornersProblem(SearchProblem):
             cost += move.piece.get_num_tiles()
         return cost
 
-        #util.raiseNotDefined()
+        # util.raiseNotDefined()
 
     # def get_corners(self):
     #     return [i for i in self.corners]
 
 
 def distance(xy1, xy2):
-    return math.sqrt(abs(xy1[0] - xy2[0])**2 + abs(xy1[1] - xy2[1])**2)
+    return math.sqrt(abs(xy1[0] - xy2[0]) ** 2 + abs(xy1[1] - xy2[1]) ** 2)
+
 
 def distance_heuristic(state, problem, targets):
-
     width = problem.board.board_w
     height = problem.board.board_h
     distance_to_targets = [BIG_NUMBER for i in targets]
-    for y  in range(width):
+    for y in range(width):
         for x in range(height):
             if not state.get_position(y, x) == FREE:
                 for i, target in enumerate(targets):
-                    dist = util.manhattanDistance((x,y), target) / 1.5
+                    dist = util.manhattanDistance((x, y), target) / 1.5
                     if dist < distance_to_targets[i]:
                         distance_to_targets[i] = dist
     return sum(distance_to_targets)
+
 
 def free_targets_heuristic(state, targets):
     free_targets = len(targets)
@@ -146,7 +152,6 @@ def free_targets_heuristic(state, targets):
 
 
 def get_adjacent(coordinates, maxY, maxX):
-
     y = coordinates[Y]
     x = coordinates[X]
     adjacent = list()
@@ -160,6 +165,7 @@ def get_adjacent(coordinates, maxY, maxX):
         adjacent.append((y, x - 1))
     return adjacent
 
+
 def combination_heuristic(state, problem, targets):
     # If the path to one of the targets is blocked
     if target_neighbors_heuristic(state, problem, targets):
@@ -172,15 +178,14 @@ def combination_heuristic(state, problem, targets):
 def target_neighbors_heuristic(state, problem, targets):
     for target in targets:
         if state.get_position(target[Y], target[X]) == FREE:
-            for neighbor in (get_adjacent(target, problem.board.board_w - 1, problem.board.board_h - 1)):
+            for neighbor in (get_adjacent(target, problem.board.board_w - 1,
+                                          problem.board.board_h - 1)):
                 if not state.get_position(neighbor[Y], neighbor[X]) == FREE:
                     return BIG_NUMBER
     return 0
 
 
-
 def blokus_corners_heuristic(state, problem):
-
     """
     Your heuristic for the BlokusCornersProblem goes here.
 
@@ -243,14 +248,27 @@ class BlokusCoverProblem(SearchProblem):
         cost = 0
         for move in actions:
             cost += move.piece.get_num_tiles()
-        return cost   # TODO: is this KEFEL code ?
+        return cost  # TODO: is this KEFEL code ?
 
 
 def blokus_cover_heuristic(state, problem):
     "*** YOUR CODE HERE ***"
 
     return combination_heuristic(state, problem, problem.targets)
-    util.raiseNotDefined()
+
+
+def closest_goal(problem, state, targets):
+    width = problem.board.board_w
+    height = problem.board.board_h
+    distance_to_targets = [BIG_NUMBER for i in targets]
+    for y in range(width):
+        for x in range(height):
+            if not state.get_position(y, x) == FREE:
+                for i, target in enumerate(targets):
+                    dist = util.manhattanDistance((x, y), target)
+                    if dist < distance_to_targets[i]:
+                        distance_to_targets[i] = dist
+    return min(distance_to_targets)
 
 
 class ClosestLocationSearch:
@@ -261,6 +279,7 @@ class ClosestLocationSearch:
 
     def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0),
                  targets=(0, 0)):
+        self.board = Board(board_w, board_h, 1, piece_list, starting_point)
         self.expanded = 0
         self.targets = targets.copy()
         "*** YOUR CODE HERE ***"
@@ -271,11 +290,33 @@ class ClosestLocationSearch:
         """
         return self.board
 
+    def is_goal_state(self, state):
+        for target in self.targets:
+            if state.get_position(target[X], target[Y]) == FREE:
+                return False
+        return True
+
+    def get_successors(self, state):
+        """
+        state: Search state
+
+        For a given state, this should return a list of triples,
+        (successor, action, stepCost), where 'successor' is a
+        successor to the current state, 'action' is the action
+        required to get there, and 'stepCost' is the incremental
+        cost of expanding to that successor
+        """
+        # Note that for the search problem, there is only one player - #0
+        self.expanded = self.expanded + 1
+        return [(state.do_move(0, move), move, move.piece.get_num_tiles()) for
+                move in state.get_legal_moves(0)]
+
     def solve(self):
         """
-        This method should return a sequence of actions that covers all target locations on the board.
-        This time we trade optimality for speed.
-        Therefore, your agent should try and cover one target location at a time. Each time, aiming for the closest uncovered location.
+        This method should return a sequence of actions that covers all target
+        locations on the board. This time we trade optimality for speed.
+        Therefore, your agent should try and cover one target location at a time.
+         Each time, aiming for the closest uncovered location.
         You may define helpful functions as you wish.
 
         Probably a good way to start, would be something like this --
@@ -291,7 +332,30 @@ class ClosestLocationSearch:
         return backtrace
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+
+
+        current_state = self.get_start_state()
+        backtrace = []
+        while not self.is_goal_state(current_state):
+            current_state_distance_target = closest_goal(self, current_state, self.targets)
+            target_index = self.targets.index(current_state_distance_target if current_state_distance_target != BIG_NUMBER else self.targets[0])
+            target = self.targets[target_index]
+            while current_state.get_position(target[X], target[Y]) == FREE:
+                print(backtrace)
+                successors = self.get_successors(current_state)
+                for successor in successors:
+                    successor_distance_from_target = closest_goal(self, successor[STATE], [target])
+                    if successor_distance_from_target < current_state_distance_target:
+                        current_state_distance_target = successor_distance_from_target
+                        current_state = successor[STATE]
+                        best_action = successor[ACTION]
+                backtrace.append(best_action)
+        return backtrace
+
+        # second try - heuristic that solve the problem with GBFS
+
+
+
 
 
 class MiniContestSearch:
