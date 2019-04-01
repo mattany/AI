@@ -150,15 +150,11 @@ def min_distances_to_targets(problem, state, distance_metric, targets):
 
 
 def chebyshev_distance(xy1, xy2):
-    return min(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
-
-
-def max_chebyshev_distance(xy1, xy2):
     return max(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
 
 
 def distance_heuristic(state, problem, targets):
-    return max(min_distances_to_targets(problem, state, max_chebyshev_distance, targets))
+    return max(min_distances_to_targets(problem, state, chebyshev_distance, targets))
 
 
 def free_targets_heuristic(state, targets):
@@ -192,15 +188,11 @@ def min_needed_cost(state, targets):
     pieces = np.array(state.piece_list.pieces)
     sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
     number_of_targets_left = target_distances_heuristic(state, targets, sorted_available_pieces)
-    min_cost = 0
-
-    # In this case we don't have enough tiles to cover the remaining corners. We have to check the
-    # edge case where there is a single piece that can cover all of the corners (the frame) since
-    # this is the only
-    if number_of_targets_left > len(sorted_available_pieces):
-        # and not \
-        # (len(sorted_available_pieces) == 1 and sorted_available_pieces[0] >= frame_cost(state)):
+    if target_distances_heuristic(state, targets, sorted_available_pieces) == ILLEGAL_PATH:
         return ILLEGAL_PATH
+    if number_of_targets_left > len(sorted_available_pieces):
+        return ILLEGAL_PATH
+    min_cost = 0
     index = number_of_targets_left - 1
     while index >= 0:
         min_cost += sorted_available_pieces[index].num_tiles
@@ -212,8 +204,8 @@ def combination_heuristic(state, problem, targets):
     # If the path to one of the targets is blocked
     if dead_end_heuristic(state, problem, targets):
         return ILLEGAL_PATH
-    # return max(min_needed_cost(state, targets), )
-    return distance_heuristic(state, problem, targets)
+    # return distance_heuristic(state, problem, targets)
+
 
 def blokus_corners_heuristic(state, problem):
     """
