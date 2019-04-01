@@ -187,9 +187,10 @@ def frame_cost(state):
 def min_needed_cost(state, targets):
     pieces = np.array(state.piece_list.pieces)
     sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
-    number_of_targets_left = target_distances_heuristic(state, targets, sorted_available_pieces)
-    if target_distances_heuristic(state, targets, sorted_available_pieces) == ILLEGAL_PATH:
+    target_set = target_distances_heuristic(targets, sorted_available_pieces)
+    if target_set == ILLEGAL_PATH:
         return ILLEGAL_PATH
+    number_of_targets_left = free_targets_heuristic(state, target_set)
     if number_of_targets_left > len(sorted_available_pieces):
         return ILLEGAL_PATH
     min_cost = 0
@@ -205,6 +206,8 @@ def combination_heuristic(state, problem, targets):
     if dead_end_heuristic(state, problem, targets):
         return ILLEGAL_PATH
     # return distance_heuristic(state, problem, targets)
+
+    return min_needed_cost(state, targets)
 
 
 def blokus_corners_heuristic(state, problem):
@@ -278,7 +281,7 @@ def blokus_cover_heuristic(state, problem):
     return combination_heuristic(state, problem, list(problem.targets))
 
 
-def target_distances_heuristic(state, targets, sorted_available_pieces):
+def target_distances_heuristic(targets, sorted_available_pieces):
     # number_of_targets_left = free_targets_heuristic(state, targets)
     # pieces = np.array(state.piece_list.pieces)
     # sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
@@ -287,21 +290,20 @@ def target_distances_heuristic(state, targets, sorted_available_pieces):
         max_tiles = sorted_available_pieces[-1].num_tiles
     else:
         return max_tiles
-    maximum_discreet_nodes = 0
+    target_set = {}
     for i in targets:
         discreet_target_set = {i}
         for j in targets:
             to_add = True
             for item in discreet_target_set:
-                if (util.manhattanDistance(item, j) - 1) < max_tiles:
+                if (util.manhattanDistance(item, j) + 1) < max_tiles:
                     to_add = False
                     break
             if to_add:
                 discreet_target_set.add(j)
-        discreet_nodes = len(discreet_target_set)
-        if discreet_nodes > maximum_discreet_nodes:
-            maximum_discreet_nodes = discreet_nodes
-    return maximum_discreet_nodes
+        if len(discreet_target_set)> len(target_set):
+            target_set = discreet_target_set
+    return target_set
 
 
 class ClosestLocationSearch:
