@@ -60,9 +60,6 @@ class BlokusFillProblem(SearchProblem):
         return len(actions)
 
 
-#####################################################
-# This portion is incomplete.  Time to write code!  #
-#####################################################
 class BlokusCornersProblem(SearchProblem):
     def __init__(self, board_w, board_h, piece_list, starting_point=(0, 0)):
         self.board = Board(board_w, board_h, 1, piece_list, starting_point)
@@ -121,6 +118,9 @@ class BlokusCornersProblem(SearchProblem):
 
 
 def get_adjacent(coordinates, maxY, maxX):
+    """
+    :return a list of the adjacent tiles for a given coordinate on the board
+    """
     y = coordinates[Y]
     x = coordinates[X]
     adjacent = list()
@@ -135,7 +135,10 @@ def get_adjacent(coordinates, maxY, maxX):
     return adjacent
 
 
-def min_distances_to_targets(problem, state, distance_metric, targets):
+def min_distances_to_targets(problem, state, targets):
+    """
+    :return: return a list of the minimal distances from each target tile to all filled tiles
+    """
     width = problem.board.board_w
     height = problem.board.board_h
     min_distances = [ILLEGAL_PATH for i in targets]
@@ -143,18 +146,19 @@ def min_distances_to_targets(problem, state, distance_metric, targets):
         for x in range(height):
             if not state.get_position(y, x) == FREE:
                 for i, target in enumerate(targets):
-                    dist = distance_metric((x, y), target)
+                    dist = util.manhattanDistance((x, y), target)
                     if dist < min_distances[i]:
                         min_distances[i] = dist
     return min_distances
 
 
-def chebyshev_distance(xy1, xy2):
-    return max(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
+# def chebyshev_distance(xy1, xy2):
+#
+#     return max(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
 
 
-def distance_heuristic(state, problem, targets):
-    return max(min_distances_to_targets(problem, state, chebyshev_distance, targets))
+# def distance_heuristic(state, problem, targets):
+#     return max(min_distances_to_targets(problem, state, chebyshev_distance, targets))
 
 
 def free_targets_heuristic(state, targets):
@@ -169,6 +173,9 @@ def free_targets_heuristic(state, targets):
 
 
 def dead_end_heuristic(state, problem, targets):
+    """
+    :return: a big number if one of the adjacent tiles is occupied.
+    """
     for target in targets:
         if state.get_position(target[Y], target[X]) == FREE:
             for neighbor in (get_adjacent(target, problem.board.board_w - 1,
@@ -178,19 +185,27 @@ def dead_end_heuristic(state, problem, targets):
     return 0
 
 
-def frame_cost(state):
-    width = state.board_w
-    height = state.board_h
-    return width * height - max(width - 2, 0) * max(height - 2, 0)
+# def frame_cost(state):
+#     width = state.board_w
+#     height = state.board_h
+#     return width * height - max(width - 2, 0) * max(height - 2, 0)
 
 
 def min_needed_cost(state, targets):
+    """
+    :return: returns the minimal cost to cover a subset of targets
+    """
+
     pieces = np.array(state.piece_list.pieces)
     sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
     target_set = target_distances_heuristic(targets, sorted_available_pieces)
+
+    # if the number of pieces left is 0
     if target_set == ILLEGAL_PATH:
         return ILLEGAL_PATH
     number_of_targets_left = free_targets_heuristic(state, target_set)
+
+    # if the
     if number_of_targets_left > len(sorted_available_pieces):
         return ILLEGAL_PATH
     min_cost = 0
@@ -277,14 +292,10 @@ class BlokusCoverProblem(SearchProblem):
 
 
 def blokus_cover_heuristic(state, problem):
-    "*** YOUR CODE HERE ***"
     return combination_heuristic(state, problem, list(problem.targets))
 
 
 def target_distances_heuristic(targets, sorted_available_pieces):
-    # number_of_targets_left = free_targets_heuristic(state, targets)
-    # pieces = np.array(state.piece_list.pieces)
-    # sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
     max_tiles = ILLEGAL_PATH
     if len(sorted_available_pieces) > 0:
         max_tiles = sorted_available_pieces[-1].num_tiles
@@ -355,7 +366,7 @@ class ClosestLocationSearch:
         backtrace = []
         current_state = self.get_start_state()
         while not self.is_goal_state(current_state):
-            distances = min_distances_to_targets(self, current_state, util.manhattanDistance, self.targets)
+            distances = min_distances_to_targets(self, current_state, self.targets)
             min_distance = min(i for i in distances if i > 0)
             # select the closest target base on the distance from each target
             target = self.targets[distances.index(min_distance)]
@@ -364,7 +375,7 @@ class ClosestLocationSearch:
                 best_action = None
                 successors = self.get_successors(current_state)
                 for successor in successors:
-                    distance = min_distances_to_targets(self, successor[STATE], util.manhattanDistance, [target])[0]
+                    distance = min_distances_to_targets(self, successor[STATE], [target])[0]
                     if distance < min_distance:
                         min_distance = distance
                         current_state = successor[STATE]
