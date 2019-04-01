@@ -154,6 +154,7 @@ def min_distances_to_targets(problem, state, distance_metric, targets):
                         min_distances[i] = dist
     return min_distances
 
+
 def chebyshev_distance(xy1, xy2):
     return min(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
 
@@ -190,10 +191,8 @@ def frame_cost(state):
     return width*height - max(width - 2, 0)*max(height - 2, 0)
 
 
-
-
 def min_needed_cost(state, targets):
-    number_of_targets_left = free_targets_heuristic(state, targets)
+    number_of_targets_left = target_distances_heuristic(state, targets)
     pieces = np.array(state.piece_list.pieces)
     sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
     min_cost = 0
@@ -216,7 +215,7 @@ def combination_heuristic(state, problem, targets):
     # If the path to one of the targets is blocked
     if dead_end_heuristic(state, problem, targets):
         return ILLEGAL_PATH
-    return min_needed_cost(state, targets)
+    return max(, min_needed_cost(state, targets))
 
 
 def blokus_corners_heuristic(state, problem):
@@ -232,7 +231,7 @@ def blokus_corners_heuristic(state, problem):
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
 
-    return combination_heuristic(state, problem, problem.corners)
+    return combination_heuristic(state, problem, list(problem.corners))
 
 
 class BlokusCoverProblem(SearchProblem):
@@ -287,24 +286,31 @@ class BlokusCoverProblem(SearchProblem):
 
 def blokus_cover_heuristic(state, problem):
     "*** YOUR CODE HERE ***"
-
-    if
-    return combination_heuristic(state, problem, problem.targets)
+    return combination_heuristic(state, problem, list(problem.targets))
 
 
-def target_distances_heuristic(targets, state):
+def target_distances_heuristic(state, targets):
     # number_of_targets_left = free_targets_heuristic(state, targets)
     pieces = np.array(state.piece_list.pieces)
     sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
     max_tiles = ILLEGAL_PATH
     if len(sorted_available_pieces) > 0:
         max_tiles = sorted_available_pieces[-1].num_tiles
-    discrete_pairs = math.nck(targets)
-    for i in targets():
-        for j in targets()[i+1:]:
-            if util.manhattanDistance(i, j) >= max_tiles:
-                discrete_pairs -= 1
-    return discrete_pairs
+    maximum_discreet_nodes = 0
+    for i in targets:
+        seti = {i}
+        for j in targets:
+            to_add = True
+            for item in seti:
+                if util.manhattanDistance(item, j) - 1 < max_tiles:
+                    to_add = False
+                    break
+            if to_add:
+                seti.add(j)
+        discreet_nodes = len(seti)
+        if discreet_nodes > maximum_discreet_nodes:
+            maximum_discreet_nodes = discreet_nodes
+    return maximum_discreet_nodes
 
 
 class ClosestLocationSearch:
