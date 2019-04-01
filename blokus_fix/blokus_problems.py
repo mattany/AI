@@ -12,6 +12,7 @@ STATE = 0
 ACTION = 1
 
 
+
 class BlokusFillProblem(SearchProblem):
     """
     A one-player Blokus game as a search problem.
