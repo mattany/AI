@@ -12,7 +12,6 @@ STATE = 0
 ACTION = 1
 
 
-
 class BlokusFillProblem(SearchProblem):
     """
     A one-player Blokus game as a search problem.
@@ -120,11 +119,6 @@ class BlokusCornersProblem(SearchProblem):
             cost += move.piece.get_num_tiles()
         return cost
 
-        # util.raiseNotDefined()
-
-    # def get_corners(self):
-    #     return [i for i in self.corners]
-
 
 def get_adjacent(coordinates, maxY, maxX):
     y = coordinates[Y]
@@ -140,8 +134,8 @@ def get_adjacent(coordinates, maxY, maxX):
         adjacent.append((y, x - 1))
     return adjacent
 
-def min_distances_to_targets(problem, state, distance_metric, targets):
 
+def min_distances_to_targets(problem, state, distance_metric, targets):
     width = problem.board.board_w
     height = problem.board.board_h
     min_distances = [ILLEGAL_PATH for i in targets]
@@ -159,14 +153,18 @@ def chebyshev_distance(xy1, xy2):
     return min(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
 
 
+def max_chebyshev_distance(xy1, xy2):
+    return max(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
+
+
 def distance_heuristic(state, problem, targets):
-    return max(min_distances_to_targets(problem, state, chebyshev_distance, targets))
+    return max(min_distances_to_targets(problem, state, max_chebyshev_distance, targets))
 
 
-"""
-:return the number of free targets
-"""
 def free_targets_heuristic(state, targets):
+    """
+    :return the number of free targets
+    """
     free_targets = len(targets)
     for target in targets:
         if not state.get_position(target[Y], target[X]) == FREE:
@@ -175,7 +173,6 @@ def free_targets_heuristic(state, targets):
 
 
 def dead_end_heuristic(state, problem, targets):
-
     for target in targets:
         if state.get_position(target[Y], target[X]) == FREE:
             for neighbor in (get_adjacent(target, problem.board.board_w - 1,
@@ -188,13 +185,13 @@ def dead_end_heuristic(state, problem, targets):
 def frame_cost(state):
     width = state.board_w
     height = state.board_h
-    return width*height - max(width - 2, 0)*max(height - 2, 0)
+    return width * height - max(width - 2, 0) * max(height - 2, 0)
 
 
 def min_needed_cost(state, targets):
-    number_of_targets_left = target_distances_heuristic(state, targets)
     pieces = np.array(state.piece_list.pieces)
     sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
+    number_of_targets_left = target_distances_heuristic(state, targets, sorted_available_pieces)
     min_cost = 0
 
     # In this case we don't have enough tiles to cover the remaining corners. We have to check the
@@ -202,7 +199,7 @@ def min_needed_cost(state, targets):
     # this is the only
     if number_of_targets_left > len(sorted_available_pieces):
         # and not \
-            # (len(sorted_available_pieces) == 1 and sorted_available_pieces[0] >= frame_cost(state)):
+        # (len(sorted_available_pieces) == 1 and sorted_available_pieces[0] >= frame_cost(state)):
         return ILLEGAL_PATH
     index = number_of_targets_left - 1
     while index >= 0:
@@ -215,8 +212,8 @@ def combination_heuristic(state, problem, targets):
     # If the path to one of the targets is blocked
     if dead_end_heuristic(state, problem, targets):
         return ILLEGAL_PATH
-    return max(, min_needed_cost(state, targets))
-
+    # return max(min_needed_cost(state, targets), )
+    return distance_heuristic(state, problem, targets)
 
 def blokus_corners_heuristic(state, problem):
     """
@@ -281,7 +278,7 @@ class BlokusCoverProblem(SearchProblem):
         cost = 0
         for move in actions:
             cost += move.piece.get_num_tiles()
-        return cost  # TODO: is this KEFEL code ?
+        return cost
 
 
 def blokus_cover_heuristic(state, problem):
@@ -289,25 +286,27 @@ def blokus_cover_heuristic(state, problem):
     return combination_heuristic(state, problem, list(problem.targets))
 
 
-def target_distances_heuristic(state, targets):
+def target_distances_heuristic(state, targets, sorted_available_pieces):
     # number_of_targets_left = free_targets_heuristic(state, targets)
-    pieces = np.array(state.piece_list.pieces)
-    sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
+    # pieces = np.array(state.piece_list.pieces)
+    # sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
     max_tiles = ILLEGAL_PATH
     if len(sorted_available_pieces) > 0:
         max_tiles = sorted_available_pieces[-1].num_tiles
+    else:
+        return max_tiles
     maximum_discreet_nodes = 0
     for i in targets:
-        seti = {i}
+        discreet_target_set = {i}
         for j in targets:
             to_add = True
-            for item in seti:
-                if util.manhattanDistance(item, j) - 1 < max_tiles:
+            for item in discreet_target_set:
+                if (util.manhattanDistance(item, j) - 1) < max_tiles:
                     to_add = False
                     break
             if to_add:
-                seti.add(j)
-        discreet_nodes = len(seti)
+                discreet_target_set.add(j)
+        discreet_nodes = len(discreet_target_set)
         if discreet_nodes > maximum_discreet_nodes:
             maximum_discreet_nodes = discreet_nodes
     return maximum_discreet_nodes
