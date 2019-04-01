@@ -152,15 +152,6 @@ def min_distances_to_targets(problem, state, targets):
     return min_distances
 
 
-# def chebyshev_distance(xy1, xy2):
-#
-#     return max(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
-
-
-# def distance_heuristic(state, problem, targets):
-#     return max(min_distances_to_targets(problem, state, chebyshev_distance, targets))
-
-
 def free_targets_heuristic(state, targets):
     """
     :return the number of free targets
@@ -185,12 +176,6 @@ def dead_end_heuristic(state, problem, targets):
     return 0
 
 
-# def frame_cost(state):
-#     width = state.board_w
-#     height = state.board_h
-#     return width * height - max(width - 2, 0) * max(height - 2, 0)
-
-
 def min_needed_cost(state, targets):
     """
     :return: returns the minimal cost to cover a subset of targets
@@ -203,9 +188,9 @@ def min_needed_cost(state, targets):
     # if the number of pieces left is 0
     if target_set == ILLEGAL_PATH:
         return ILLEGAL_PATH
-    number_of_targets_left = free_targets_heuristic(state, target_set)
 
-    # if the
+    # the length of the biggest subset of targets that need one piece at least to reach each of them
+    number_of_targets_left = free_targets_heuristic(state, target_set)
     if number_of_targets_left > len(sorted_available_pieces):
         return ILLEGAL_PATH
     min_cost = 0
@@ -220,8 +205,6 @@ def combination_heuristic(state, problem, targets):
     # If the path to one of the targets is blocked
     if dead_end_heuristic(state, problem, targets):
         return ILLEGAL_PATH
-    # return distance_heuristic(state, problem, targets)
-
     return min_needed_cost(state, targets)
 
 
@@ -307,12 +290,12 @@ def target_distances_heuristic(targets, sorted_available_pieces):
         for j in targets:
             to_add = True
             for item in discreet_target_set:
-                if (util.manhattanDistance(item, j) + 1) < max_tiles:
+                if (util.manhattanDistance(item, j)) < max_tiles:
                     to_add = False
                     break
             if to_add:
                 discreet_target_set.add(j)
-        if len(discreet_target_set)> len(target_set):
+        if len(discreet_target_set) > len(target_set):
             target_set = discreet_target_set
     return target_set
 
@@ -403,3 +386,16 @@ class MiniContestSearch:
     def solve(self):
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
+
+# def chebyshev_distance(xy1, xy2):
+#
+#     return max(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
+
+
+# def distance_heuristic(state, problem, targets):
+#     return max(min_distances_to_targets(problem, state, chebyshev_distance, targets))
+
+# def frame_cost(state):
+#     width = state.board_w
+#     height = state.board_h
+#     return width * height - max(width - 2, 0) * max(height - 2, 0)
