@@ -140,6 +140,7 @@ def get_adjacent(coordinates, maxY, maxX):
     return adjacent
 
 def min_distances_to_targets(problem, state, distance_metric, targets):
+
     width = problem.board.board_w
     height = problem.board.board_h
     min_distances = [ILLEGAL_PATH for i in targets]
@@ -158,6 +159,7 @@ def chebyshev_distance(xy1, xy2):
 
 def distance_heuristic(state, problem, targets):
     return max(min_distances_to_targets(problem, state, chebyshev_distance, targets))
+
 
 """
 :return the number of free targets
@@ -181,12 +183,26 @@ def dead_end_heuristic(state, problem, targets):
     return 0
 
 
+def frame_cost(state):
+    width = state.board_w
+    height = state.board_h
+    return width*height - max(width - 2, 0)*max(height - 2, 0)
+
+
+
+
 def min_needed_cost(state, targets):
     number_of_targets_left = free_targets_heuristic(state, targets)
     pieces = np.array(state.piece_list.pieces)
     sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
     min_cost = 0
+
+    # In this case we don't have enough tiles to cover the remaining corners. We have to check the
+    # edge case where there is a single piece that can cover all of the corners (the frame) since
+    # this is the only
     if number_of_targets_left > len(sorted_available_pieces):
+        # and not \
+            # (len(sorted_available_pieces) == 1 and sorted_available_pieces[0] >= frame_cost(state)):
         return ILLEGAL_PATH
     index = number_of_targets_left - 1
     while index >= 0:
@@ -200,7 +216,6 @@ def combination_heuristic(state, problem, targets):
     if dead_end_heuristic(state, problem, targets):
         return ILLEGAL_PATH
     return min_needed_cost(state, targets)
-
 
 
 def blokus_corners_heuristic(state, problem):
@@ -272,9 +287,23 @@ class BlokusCoverProblem(SearchProblem):
 def blokus_cover_heuristic(state, problem):
     "*** YOUR CODE HERE ***"
 
+    if
     return combination_heuristic(state, problem, problem.targets)
 
 
+def target_distances_heuristic(targets, state):
+    # number_of_targets_left = free_targets_heuristic(state, targets)
+    pieces = np.array(state.piece_list.pieces)
+    sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
+    max_tiles = ILLEGAL_PATH
+    if len(sorted_available_pieces) > 0:
+        max_tiles = sorted_available_pieces[-1].num_tiles
+    discrete_pairs = math.nck(targets)
+    for i in targets():
+        for j in targets()[i+1:]:
+            if util.manhattanDistance(i, j) >= max_tiles:
+                discrete_pairs -= 1
+    return discrete_pairs
 
 
 class ClosestLocationSearch:
