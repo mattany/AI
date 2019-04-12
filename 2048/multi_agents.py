@@ -25,15 +25,24 @@ class ReflexAgent(Agent):
 
         # Collect legal moves and successor states
         legal_moves = game_state.get_agent_legal_actions()
-
+        scores = list()
         # Choose one of the best actions
-        scores = [self.evaluation_function(game_state, action) for action in legal_moves]
+        if Action.DOWN or Action.RIGHT in legal_moves:
+            if Action.DOWN in legal_moves:
+                scores = [self.evaluation_function(game_state, Action.DOWN)]
+            if Action.RIGHT in legal_moves:
+                scores.append(self.evaluation_function(game_state, Action.RIGHT))
+        elif Action.UP in legal_moves:
+            return Action.UP
+        else:
+            scores = [self.evaluation_function(game_state, action) for action in legal_moves]
         best_score = max(scores)
         best_indices = [index for index in range(len(scores)) if scores[index] == best_score]
         chosen_index = np.random.choice(best_indices)  # Pick randomly among the best
 
         "Add more of your code here if you want to"
 
+        print(legal_moves[chosen_index])
         return legal_moves[chosen_index]
 
     def evaluation_function(self, current_game_state, action):

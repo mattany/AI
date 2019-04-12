@@ -65,7 +65,7 @@ class Game(object):
     def _game_loop(self):
         while not self._state.done and not self._should_quit:
             if self.sleep_between_actions:
-                time.sleep(1)
+                time.sleep(2)
             self.display.mainloop_iteration()
             action = self.agent.get_action(self._state)
             if action == Action.STOP:
