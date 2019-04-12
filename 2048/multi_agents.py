@@ -49,6 +49,16 @@ class ReflexAgent(Agent):
 
         successor_game_state = current_game_state.generate_successor(action=action)
         board = successor_game_state.board
+        sum_of_differences = 0
+        for i in range(successor_game_state._num_of_rows):
+            for j in range(successor_game_state._num_of_columns - 1):
+                sum_of_differences += abs(board[i][j] - board[i][j+1])
+        for i in range(successor_game_state._num_of_columns):
+            for j in range(successor_game_state._num_of_rows - 1):
+                sum_of_differences += abs(board[i][j] - board[i+1][j])
+        return sum_of_differences
+
+
         max_tile = successor_game_state.max_tile
         score = successor_game_state.score
 
