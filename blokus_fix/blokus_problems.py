@@ -11,6 +11,7 @@ ILLEGAL_PATH = 100000000
 STATE = 0
 ACTION = 1
 
+DISCRETE_CORNERS = 0
 
 class BlokusFillProblem(SearchProblem):
     """
@@ -135,7 +136,11 @@ def get_adjacent(coordinates, maxY, maxX):
     return adjacent
 
 
-def min_distances_to_targets(problem, state, targets):
+def chebyshev_distance(xy1, xy2):
+    return max(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
+
+
+def min_distances_to_targets(problem, state, targets, distance_metric):
     """
     :return: return a list of the minimal distances from each target tile to all filled tiles
     """
@@ -146,7 +151,7 @@ def min_distances_to_targets(problem, state, targets):
         for x in range(height):
             if not state.get_position(y, x) == FREE:
                 for i, target in enumerate(targets):
-                    dist = util.manhattanDistance((x, y), target)
+                    dist = distance_metric((x, y), target)
                     if dist < min_distances[i]:
                         min_distances[i] = dist
     return min_distances
@@ -176,15 +181,14 @@ def dead_end_heuristic(state, problem, targets):
     return 0
 
 
-def min_needed_cost(state, targets):
+def min_needed_cost(state, targets, cover=True):
     """
     :return: returns the minimal cost to cover a subset of targets
     """
 
     pieces = np.array(state.piece_list.pieces)
     sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
-    target_set = target_distances_heuristic(targets, sorted_available_pieces)
-
+    target_set = discrete_target_set(targets, sorted_available_pieces) if cover else DISCRETE_CORNERS
     # if the number of pieces left is 0
     if target_set == ILLEGAL_PATH:
         return ILLEGAL_PATH
@@ -201,11 +205,20 @@ def min_needed_cost(state, targets):
     return min_cost
 
 
-def combination_heuristic(state, problem, targets):
+def combination_heuristic(state, problem, targets, cover=True):
     # If the path to one of the targets is blocked
     if dead_end_heuristic(state, problem, targets):
         return ILLEGAL_PATH
-    return min_needed_cost(state, targets)
+    # return max(max(min_distances_to_targets(problem, state, targets, chebyshev_distance)),
+    #            min_needed_cost(state, targets, cover))
+    return min_needed_cost(state, targets, cover)
+
+
+def discrete_corner_set(state, problem):
+    global DISCRETE_CORNERS
+    pieces = np.array(state.piece_list.pieces)
+    sorted_available_pieces = sorted(pieces[np.where(state.pieces[0])], key=lambda x: x.num_tiles)
+    DISCRETE_CORNERS = discrete_target_set(problem.corners, sorted_available_pieces)
 
 
 def blokus_corners_heuristic(state, problem):
@@ -220,8 +233,9 @@ def blokus_corners_heuristic(state, problem):
     your heuristic is *not* consistent, and probably not admissible!  On the other hand,
     inadmissible or inconsistent heuristics may find optimal solutions, so be careful.
     """
-
-    return combination_heuristic(state, problem, list(problem.corners))
+    if DISCRETE_CORNERS == 0:
+        discrete_corner_set(state, problem)
+    return combination_heuristic(state, problem, list(problem.corners), cover=False)
 
 
 class BlokusCoverProblem(SearchProblem):
@@ -278,7 +292,7 @@ def blokus_cover_heuristic(state, problem):
     return combination_heuristic(state, problem, list(problem.targets))
 
 
-def target_distances_heuristic(targets, sorted_available_pieces):
+def discrete_target_set(targets, sorted_available_pieces):
     max_tiles = ILLEGAL_PATH
     if len(sorted_available_pieces) > 0:
         max_tiles = sorted_available_pieces[-1].num_tiles
@@ -286,17 +300,17 @@ def target_distances_heuristic(targets, sorted_available_pieces):
         return max_tiles
     target_set = {}
     for i in targets:
-        discreet_target_set = {i}
+        current_set = {i}
         for j in targets:
             to_add = True
-            for item in discreet_target_set:
+            for item in current_set:
                 if (util.manhattanDistance(item, j)) < max_tiles:
                     to_add = False
                     break
             if to_add:
-                discreet_target_set.add(j)
-        if len(discreet_target_set) > len(target_set):
-            target_set = discreet_target_set
+                current_set.add(j)
+        if len(current_set) > len(target_set):
+            target_set = current_set
     return target_set
 
 
@@ -349,7 +363,7 @@ class ClosestLocationSearch:
         backtrace = []
         current_state = self.get_start_state()
         while not self.is_goal_state(current_state):
-            distances = min_distances_to_targets(self, current_state, self.targets)
+            distances = min_distances_to_targets(self, current_state, self.targets, util.manhattanDistance)
             min_distance = min(i for i in distances if i > 0)
             # select the closest target base on the distance from each target
             target = self.targets[distances.index(min_distance)]
@@ -358,7 +372,7 @@ class ClosestLocationSearch:
                 best_action = None
                 successors = self.get_successors(current_state)
                 for successor in successors:
-                    distance = min_distances_to_targets(self, successor[STATE], [target])[0]
+                    distance = min_distances_to_targets(self, successor[STATE], [target], util.manhattanDistance)[0]
                     if distance < min_distance:
                         min_distance = distance
                         current_state = successor[STATE]
@@ -387,9 +401,6 @@ class MiniContestSearch:
         "*** YOUR CODE HERE ***"
         util.raiseNotDefined()
 
-# def chebyshev_distance(xy1, xy2):
-#
-#     return max(abs(xy1[Y] - xy2[Y]), abs(xy1[X] - xy2[X]))
 
 
 # def distance_heuristic(state, problem, targets):
