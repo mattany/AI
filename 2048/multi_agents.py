@@ -3,6 +3,8 @@ import abc
 import util
 from game import Agent, Action
 
+OPPONENT = 1
+
 
 class ReflexAgent(Agent):
     """
@@ -89,6 +91,7 @@ class MultiAgentSearchAgent(Agent):
     def __init__(self, evaluation_function='scoreEvaluationFunction', depth=2):
         self.evaluation_function = util.lookup(evaluation_function, globals())
         self.depth = depth
+        self.current_agent =
 
     @abc.abstractmethod
     def get_action(self, game_state):
@@ -115,6 +118,15 @@ class MinmaxAgent(MultiAgentSearchAgent):
         """
         """*** YOUR CODE HERE ***"""
         util.raiseNotDefined()
+
+    def get_action_depth(self, game_state, depth):
+        oppenent_game_states = list()
+        player_game_states = list()
+        for item in game_state.get_legal_actions(OPPONENT):
+            oppenent_game_states.append(game_state.generate_successor(OPPONENT, item[0]))
+        for state in oppenent_game_states:
+
+
 
 
 

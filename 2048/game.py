@@ -1,7 +1,6 @@
 import abc
 from collections import namedtuple
 from enum import Enum
-
 import numpy as np
 import time
 
