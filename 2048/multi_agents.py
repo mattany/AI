@@ -3,7 +3,10 @@ import abc
 import util
 from game import Agent, Action
 
+OUR_AGENT = 0
 OPPONENT = 1
+MAX = True
+MIN = False
 
 
 class ReflexAgent(Agent):
@@ -55,10 +58,10 @@ class ReflexAgent(Agent):
         sum_of_differences = 0
         for i in range(successor_game_state._num_of_rows):
             for j in range(successor_game_state._num_of_columns - 1):
-                sum_of_differences += abs(board[i][j] - board[i][j+1])
+                sum_of_differences += abs(board[i][j] - board[i][j + 1])
         for j in range(successor_game_state._num_of_columns):
             for i in range(successor_game_state._num_of_rows - 1):
-                sum_of_differences += abs(board[i][j] - board[i+1][j])
+                sum_of_differences += abs(board[i][j] - board[i + 1][j])
         return sum_of_differences
 
 
@@ -91,11 +94,32 @@ class MultiAgentSearchAgent(Agent):
     def __init__(self, evaluation_function='scoreEvaluationFunction', depth=2):
         self.evaluation_function = util.lookup(evaluation_function, globals())
         self.depth = depth
-        self.current_agent =
 
     @abc.abstractmethod
     def get_action(self, game_state):
         return
+
+    @abc.abstractmethod
+    def max_value(self, game_state, depth):
+        return
+
+    @abc.abstractmethod
+    def min_value(self, game_state, depth):
+        return
+
+    @abc.abstractmethod
+    def decision(self, game_state):
+        """
+        minimax implementation
+        :param game_state: current state
+        :return: minimax action
+        """
+        states = list()
+        actions = game_state.get_legal_actions(OUR_AGENT)
+        for action in actions:
+            states.append((game_state.generate_successor(OUR_AGENT, action), action))  # (state, action_to_that_state)
+        # return the action lead to max state
+        return max([(self.min_value(state[0], 1), state[1]) for state in states], key=lambda x: x[0])[1]
 
 
 class MinmaxAgent(MultiAgentSearchAgent):
@@ -116,18 +140,49 @@ class MinmaxAgent(MultiAgentSearchAgent):
         game_state.generate_successor(agent_index, action):
             Returns the successor game state after an agent takes an action
         """
-        """*** YOUR CODE HERE ***"""
-        util.raiseNotDefined()
 
-    def get_action_depth(self, game_state, depth):
-        oppenent_game_states = list()
-        player_game_states = list()
-        for item in game_state.get_legal_actions(OPPONENT):
-            oppenent_game_states.append(game_state.generate_successor(OPPONENT, item[0]))
-        for state in oppenent_game_states:
+        return self.decision(game_state)
+        # util.raiseNotDefined()
 
+    def max_value(self, game_state, depth):
+        """
+        our agent move in 2048 game
+        :param game_state: current state
+        :param depth: keep track to know when to stop
+        :return: value of state
+        """
+        if depth == self.depth:
+            return self.evaluation_function(game_state)
 
+        depth += 1
+        states = list()
 
+        v = -np.inf  # minus infinity
+
+        for action in game_state.get_legal_actions(OUR_AGENT):
+            states.append(game_state.generate_successor(OUR_AGENT, action))
+        for state in states:
+            v = max(v, self.min_value(state, depth))
+        return v
+
+    def min_value(self, game_state, depth):
+        """
+        opponent move in 2048 game
+        :param game_state: current state
+        :param depth: keep track to know when to stop
+        :return: value of state
+        """
+        if depth == self.depth:
+            return self.evaluation_function(game_state)
+        states = list()
+
+        v = np.inf  # infinity
+
+        for action in game_state.get_legal_actions(OPPONENT):
+            states.append(game_state.generate_successor(OPPONENT, action))
+        for state in states:
+            v = min(v, self.max_value(state, depth))
+        return v
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
@@ -142,6 +197,45 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """*** YOUR CODE HERE ***"""
         util.raiseNotDefined()
 
+    def max_value(self, game_state, depth):
+        """
+        our agent move in 2048 game
+        :param game_state: current state
+        :param depth: keep track to know when to stop
+        :return: value of state
+        """
+        if depth == self.depth:
+            return self.evaluation_function(game_state)
+
+        depth += 1
+        states = list()
+
+        v = -np.inf  # minus infinity
+
+        for action in game_state.get_legal_actions(OUR_AGENT):
+            states.append(game_state.generate_successor(OUR_AGENT, action))
+        for state in states:
+            v = max(v, self.min_value(state, depth))
+        return v
+
+    def min_value(self, game_state, depth):
+        """
+        opponent move in 2048 game
+        :param game_state: current state
+        :param depth: keep track to know when to stop
+        :return: value of state
+        """
+        if depth == self.depth:
+            return self.evaluation_function(game_state)
+        states = list()
+
+        v = np.inf  # infinity
+
+        for action in game_state.get_legal_actions(OPPONENT):
+            states.append(game_state.generate_successor(OPPONENT, action))
+        for state in states:
+            v = min(v, self.max_value(state, depth))
+        return v
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -158,9 +252,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         """
         """*** YOUR CODE HERE ***"""
         util.raiseNotDefined()
-
-
-
 
 
 def better_evaluation_function(current_game_state):
