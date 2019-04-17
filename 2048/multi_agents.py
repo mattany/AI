@@ -99,28 +99,6 @@ class MultiAgentSearchAgent(Agent):
     def get_action(self, game_state):
         return
 
-    @abc.abstractmethod
-    def max_value(self, game_state, depth):
-        return
-
-    @abc.abstractmethod
-    def min_value(self, game_state, depth):
-        return
-
-    @abc.abstractmethod
-    def decision(self, game_state):
-        """
-        minimax implementation
-        :param game_state: current state
-        :return: minimax action
-        """
-        states = list()
-        actions = game_state.get_legal_actions(OUR_AGENT)
-        for action in actions:
-            states.append((game_state.generate_successor(OUR_AGENT, action), action))  # (state, action_to_that_state)
-        # return the action lead to max state
-        return max([(self.min_value(state[0], 1), state[1]) for state in states], key=lambda x: x[0])[1]
-
 
 class MinmaxAgent(MultiAgentSearchAgent):
     def get_action(self, game_state):
@@ -140,9 +118,12 @@ class MinmaxAgent(MultiAgentSearchAgent):
         game_state.generate_successor(agent_index, action):
             Returns the successor game state after an agent takes an action
         """
-
-        return self.decision(game_state)
-        # util.raiseNotDefined()
+        states = list()
+        actions = game_state.get_legal_actions(OUR_AGENT)
+        for action in actions:
+            states.append((game_state.generate_successor(OUR_AGENT, action), action))  # (state, action_to_that_state)
+        # return the action lead to max state
+        return max([(self.min_value(state[0], 1), state[1]) for state in states], key=lambda x: x[0])[1]
 
     def max_value(self, game_state, depth):
         """
@@ -194,10 +175,15 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        """*** YOUR CODE HERE ***"""
-        util.raiseNotDefined()
+        states = list()
+        actions = game_state.get_legal_actions(OUR_AGENT)
+        for action in actions:
+            states.append((game_state.generate_successor(OUR_AGENT, action), action))  # (state, action_to_that_state)
+        # return the action lead to max state
+        return max([(self.min_value(state[0], -np.inf, np.inf, 1), state[1]) for state in states], key=lambda x: x[0])[
+            1]
 
-    def max_value(self, game_state, depth):
+    def max_value(self, game_state, a, b, depth):
         """
         our agent move in 2048 game
         :param game_state: current state
@@ -215,10 +201,13 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         for action in game_state.get_legal_actions(OUR_AGENT):
             states.append(game_state.generate_successor(OUR_AGENT, action))
         for state in states:
-            v = max(v, self.min_value(state, depth))
+            v = max(v, self.min_value(state, a, b, depth))
+            if v >= b:
+                return v
+            a = max(a, v)
         return v
 
-    def min_value(self, game_state, depth):
+    def min_value(self, game_state, a, b, depth):
         """
         opponent move in 2048 game
         :param game_state: current state
@@ -234,7 +223,10 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         for action in game_state.get_legal_actions(OPPONENT):
             states.append(game_state.generate_successor(OPPONENT, action))
         for state in states:
-            v = min(v, self.max_value(state, depth))
+            v = min(v, self.max_value(state, a, b, depth))
+            if v >= b:
+                return v
+            b = min(b, v)
         return v
 
 
@@ -261,7 +253,15 @@ def better_evaluation_function(current_game_state):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    board = current_game_state.board
+    sum_of_differences = 0
+    for i in range(current_game_state._num_of_rows):
+        for j in range(current_game_state._num_of_columns - 1):
+            sum_of_differences += abs(board[i][j] - board[i][j + 1])
+    for j in range(current_game_state._num_of_columns):
+        for i in range(current_game_state._num_of_rows - 1):
+            sum_of_differences += abs(board[i][j] - board[i + 1][j])
+    return sum_of_differences
 
 
 # Abbreviation
