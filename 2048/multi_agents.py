@@ -54,15 +54,7 @@ class ReflexAgent(Agent):
         # Useful information you can extract from a GameState (game_state.py)
 
         successor_game_state = current_game_state.generate_successor(action=action)
-        board = successor_game_state.board
-        sum_of_differences = 0
-        for i in range(successor_game_state._num_of_rows):
-            for j in range(successor_game_state._num_of_columns - 1):
-                sum_of_differences += abs(board[i][j] - board[i][j + 1])
-        for j in range(successor_game_state._num_of_columns):
-            for i in range(successor_game_state._num_of_rows - 1):
-                sum_of_differences += abs(board[i][j] - board[i + 1][j])
-        return sum_of_differences
+        smoothness_heuristic(successor_game_state)
 
 
 def score_evaluation_function(current_game_state):
@@ -253,14 +245,50 @@ def better_evaluation_function(current_game_state):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    board = current_game_state.board
+    h1 = smoothness_heuristic(current_game_state)
+    h2 = monotonicity_heuristic(current_game_state)
+    # print("S: ", 5*h1/current_game_state.score, " M: ", current_game_state.score/h2, "T: ",  h1/current_game_state.score + current_game_state.score/h2)
+    return 2.5*h1/current_game_state.score + current_game_state.score/h2
+
+def monotonicity_heuristic(game_state):
+    board = game_state.board
+    score = 100
+
+    for i in range(game_state._num_of_rows):
+        row_grade = 0
+        for j in range(game_state._num_of_columns - 1):
+            difference =  board[i][j] - board[i][j + 1]
+            if difference > 0:
+                row_grade += 1
+            elif difference < 0:
+                row_grade -= 1
+        score -= abs(row_grade)
+
+    for j in range(game_state._num_of_columns):
+        col_grade = 0
+        for i in range(game_state._num_of_rows - 1):
+            difference = board[i][j] - board[i + 1][j]
+            if difference > 0:
+                col_grade += 1
+            elif difference < 0:
+                col_grade -= 1
+        score -= abs(col_grade)
+
+    return score
+
+
+
+def smoothness_heuristic(game_state):
+    board = game_state.board
+    # score = game_state.score
     sum_of_differences = 0
-    for i in range(current_game_state._num_of_rows):
-        for j in range(current_game_state._num_of_columns - 1):
+    for i in range(game_state._num_of_rows):
+        for j in range(game_state._num_of_columns - 1):
             sum_of_differences += abs(board[i][j] - board[i][j + 1])
-    for j in range(current_game_state._num_of_columns):
-        for i in range(current_game_state._num_of_rows - 1):
+    for j in range(game_state._num_of_columns):
+        for i in range(game_state._num_of_rows - 1):
             sum_of_differences += abs(board[i][j] - board[i + 1][j])
+    # return 0 if sum_of_differences == 0 else sum_of_differences/score
     return sum_of_differences
 
 
