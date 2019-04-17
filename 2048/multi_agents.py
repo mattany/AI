@@ -1,5 +1,6 @@
 import numpy as np
 import abc
+import math
 import util
 from game import Agent, Action
 
@@ -33,7 +34,7 @@ class ReflexAgent(Agent):
         legal_moves = game_state.get_agent_legal_actions()
 
         # Choose one of the best actions
-        scores = [self.evaluation_function(game_state, action) for action in legal_moves]
+        scores = [1 if self.evaluation_function(game_state, action) == 0 else self.evaluation_function(game_state, action) for action in legal_moves]
         best_score = min(scores)
         best_indices = [index for index in range(len(scores)) if scores[index] == best_score]
         chosen_index = np.random.choice(best_indices)  # Pick randomly among the best
@@ -54,6 +55,7 @@ class ReflexAgent(Agent):
         # Useful information you can extract from a GameState (game_state.py)
 
         successor_game_state = current_game_state.generate_successor(action=action)
+        print(smoothness_heuristic(successor_game_state))
         smoothness_heuristic(successor_game_state)
 
 
@@ -238,6 +240,11 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         util.raiseNotDefined()
 
 
+def max_tile_heuristic(game_state):
+    board=game_state.board
+    return np.max(board)
+
+
 def better_evaluation_function(current_game_state):
     """
     Your extreme 2048 evaluation function (question 5).
@@ -247,12 +254,15 @@ def better_evaluation_function(current_game_state):
     "*** YOUR CODE HERE ***"
     h1 = smoothness_heuristic(current_game_state)
     h2 = monotonicity_heuristic(current_game_state)
-    # print("S: ", 5*h1/current_game_state.score, " M: ", current_game_state.score/h2, "T: ",  h1/current_game_state.score + current_game_state.score/h2)
-    return 2.5*h1/current_game_state.score + current_game_state.score/h2
+    h3 = free_tiles_heuristic(current_game_state)
+    h4 = max_tile_heuristic(current_game_state)
+    # print(h3,"AAAAAA")
+    # print("S: ", h1/70, "\nM: ",  0.5*(h2 + 10)," \nF: ",h3/5, "\nT: ",   h1/70 + 0.5*(h2 + 10) + h3/5, "\n\n")
+    return h1/30 + h2 + 10 + h3/5 + h4
 
 def monotonicity_heuristic(game_state):
     board = game_state.board
-    score = 100
+    score = 0
 
     for i in range(game_state._num_of_rows):
         row_grade = 0
@@ -277,6 +287,14 @@ def monotonicity_heuristic(game_state):
     return score
 
 
+def free_tiles_heuristic(game_state):
+    board = game_state.board
+    return np.count_nonzero(board)
+
+
+def log_2(number):
+    return math.log(number, 2)
+
 
 def smoothness_heuristic(game_state):
     board = game_state.board
@@ -284,10 +302,12 @@ def smoothness_heuristic(game_state):
     sum_of_differences = 0
     for i in range(game_state._num_of_rows):
         for j in range(game_state._num_of_columns - 1):
-            sum_of_differences += abs(board[i][j] - board[i][j + 1])
+            if board[i][j] != 0 and board[i][j + 1] != 0:
+                sum_of_differences -= abs(log_2(board[i][j]) - log_2(board[i][j + 1]))
     for j in range(game_state._num_of_columns):
         for i in range(game_state._num_of_rows - 1):
-            sum_of_differences += abs(board[i][j] - board[i + 1][j])
+            if board[i][j] != 0 and board[i+1][j] != 0:
+                sum_of_differences -= abs(log_2(board[i][j]) - log_2(board[i + 1][j]))
     # return 0 if sum_of_differences == 0 else sum_of_differences/score
     return sum_of_differences
 
