@@ -4,9 +4,12 @@ import math
 import util
 from game import Agent, Action
 
+
+
 VERBOSE = False
 
 #scalars
+STEEP = 1
 SMOOTH = 1
 MONOTONE = 0
 FREE_TILES = 0
@@ -264,10 +267,14 @@ def better_evaluation_function(current_game_state):
     h2 = monotonicity_heuristic(current_game_state) * MONOTONE
     h3 = free_tiles_heuristic(current_game_state) * FREE_TILES
     h4 = max_tile_heuristic(current_game_state) * MAX_TILE
+    h5 = steepness_heuristic(current_game_state) * STEEP
     if VERBOSE:
+        # print("smoothness: ", h1, "\nmonotone: ", h2, " \nfree_tiles: ", h3, "\nmax_tile: ", h4, "\nsum: ",
+        #       h1 + h2 + h3 + h4, "\n\n")
         print("smoothness: ", h1, "\nmonotone: ", h2, " \nfree_tiles: ", h3, "\nmax_tile: ", h4, "\nsum: ",
               h1 + h2 + h3 + h4, "\n\n")
-    return h1 + h2 + h3 + h4
+
+    return h1 + h2 + h3 + h4 + h5
 
 
 def monotonicity_heuristic(game_state):
@@ -304,6 +311,24 @@ def free_tiles_heuristic(game_state):
 
 def log_2(number):
     return math.log(number, 2)
+
+def steepness_heuristic(game_state):
+    """
+    :param game_state: a given game state
+    :return: The steepness score of the board, defined by a weight matrix that gives higher scores to boards that focus
+    the weight in one corner.
+    Note that the given matrix works only for 4x4 boards.
+    """
+    board = game_state.board
+    score = 0
+    weight_matrix = [[0, 1, 2, 3],
+                     [1, 2, 3, 4],
+                     [2, 3, 4, 5],
+                     [3, 4, 5, 6]]
+    for i in range(game_state._num_of_rows):
+        for j in range(game_state._num_of_columns):
+            score -= weight_matrix[i][j] * board[i][j]
+    return score
 
 
 def smoothness_heuristic(game_state):
