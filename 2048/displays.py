@@ -1,5 +1,6 @@
 import time
 
+VERBOSE = True
 
 class SummaryDisplay(object):
     def __init__(self):
@@ -16,7 +17,8 @@ class SummaryDisplay(object):
         if new_state.done:
             game_end_time = time.time()
             game_duration = game_end_time - self.game_start_time
-            print("score: %s\nhighest tile: %s\ngame_duration: %s" % (new_state.score, new_state.board.max(),
+            if VERBOSE:
+                print("score: %s\nhighest tile: %s\ngame_duration: %s" % (new_state.score, new_state.board.max(),
                                                                       game_duration))
             self.scores.append(new_state.score)
             self.highest_tile.append(new_state.board.max())
@@ -27,8 +29,14 @@ class SummaryDisplay(object):
 
     def print_stats(self):
         win_rate = len(list(filter(lambda x: x >= 2048, self.highest_tile))) / len(self.highest_tile)
+        threshold_rate = len(list(filter(lambda  x: x >= 7000, self.scores))) / len(self.scores)
+        games = len(self.scores)
         print("="*30)
+        print("number of games played: %s" % games)
         print("scores: %s" % self.scores)
         print("highest tile: %s" % self.highest_tile)
         print("game_durations: %s" % self.game_durations)
         print("win rate: %s" % win_rate)
+        print("average score: %s" % (sum(self.scores)/len(self.scores)))
+        print("7000+ proportion: %s" % threshold_rate)
+        print("average high tile: %s" % (sum(self.highest_tile)/len(self.highest_tile)))

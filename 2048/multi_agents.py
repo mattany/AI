@@ -4,6 +4,14 @@ import math
 import util
 from game import Agent, Action
 
+VERBOSE = False
+
+#scalars
+SMOOTH = 1
+MONOTONE = 0
+FREE_TILES = 0
+MAX_TILE = 0
+
 OUR_AGENT = 0
 OPPONENT = 1
 MAX = True
@@ -34,8 +42,8 @@ class ReflexAgent(Agent):
         legal_moves = game_state.get_agent_legal_actions()
 
         # Choose one of the best actions
-        scores = [1 if self.evaluation_function(game_state, action) == 0 else self.evaluation_function(game_state, action) for action in legal_moves]
-        best_score = min(scores)
+        scores = [self.evaluation_function(game_state, action) for action in legal_moves]
+        best_score = max(scores)
         best_indices = [index for index in range(len(scores)) if scores[index] == best_score]
         chosen_index = np.random.choice(best_indices)  # Pick randomly among the best
 
@@ -55,8 +63,8 @@ class ReflexAgent(Agent):
         # Useful information you can extract from a GameState (game_state.py)
 
         successor_game_state = current_game_state.generate_successor(action=action)
-        print(smoothness_heuristic(successor_game_state))
-        smoothness_heuristic(successor_game_state)
+        # return monotonicity_heuristic(current_game_state)
+        return smoothness_heuristic(successor_game_state)
 
 
 def score_evaluation_function(current_game_state):
@@ -241,8 +249,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
 
 def max_tile_heuristic(game_state):
-    board=game_state.board
-    return np.max(board)
+    board = game_state.board
+    return log_2(np.max(board))
 
 
 def better_evaluation_function(current_game_state):
@@ -252,13 +260,15 @@ def better_evaluation_function(current_game_state):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    h1 = smoothness_heuristic(current_game_state)
-    h2 = monotonicity_heuristic(current_game_state)
-    h3 = free_tiles_heuristic(current_game_state)
-    h4 = max_tile_heuristic(current_game_state)
-    # print(h3,"AAAAAA")
-    # print("S: ", h1/70, "\nM: ",  0.5*(h2 + 10)," \nF: ",h3/5, "\nT: ",   h1/70 + 0.5*(h2 + 10) + h3/5, "\n\n")
-    return h1/30 + h2 + 10 + h3/5 + h4
+    h1 = smoothness_heuristic(current_game_state) * SMOOTH
+    h2 = monotonicity_heuristic(current_game_state) * MONOTONE
+    h3 = free_tiles_heuristic(current_game_state) * FREE_TILES
+    h4 = max_tile_heuristic(current_game_state) * MAX_TILE
+    if VERBOSE:
+        print("smoothness: ", h1, "\nmonotone: ", h2, " \nfree_tiles: ", h3, "\nmax_tile: ", h4, "\nsum: ",
+              h1 + h2 + h3 + h4, "\n\n")
+    return h1 + h2 + h3 + h4
+
 
 def monotonicity_heuristic(game_state):
     board = game_state.board
@@ -267,7 +277,7 @@ def monotonicity_heuristic(game_state):
     for i in range(game_state._num_of_rows):
         row_grade = 0
         for j in range(game_state._num_of_columns - 1):
-            difference =  board[i][j] - board[i][j + 1]
+            difference = board[i][j] - board[i][j + 1]
             if difference > 0:
                 row_grade += 1
             elif difference < 0:
@@ -297,19 +307,24 @@ def log_2(number):
 
 
 def smoothness_heuristic(game_state):
+    """
+    :param game_state: a given game state
+    :return: The smoothness score of the board, defined as the negative of the sum of differences
+    between adjacent tiles on a board. The differences are in base 2 to signify the number of tile merges needed for the
+    lower tile to reach the higher tile
+    """
     board = game_state.board
     # score = game_state.score
     sum_of_differences = 0
     for i in range(game_state._num_of_rows):
         for j in range(game_state._num_of_columns - 1):
             if board[i][j] != 0 and board[i][j + 1] != 0:
-                sum_of_differences -= abs(log_2(board[i][j]) - log_2(board[i][j + 1]))
+                sum_of_differences += abs(log_2(board[i][j]) - log_2(board[i][j + 1]))
     for j in range(game_state._num_of_columns):
         for i in range(game_state._num_of_rows - 1):
-            if board[i][j] != 0 and board[i+1][j] != 0:
-                sum_of_differences -= abs(log_2(board[i][j]) - log_2(board[i + 1][j]))
-    # return 0 if sum_of_differences == 0 else sum_of_differences/score
-    return sum_of_differences
+            if board[i][j] != 0 and board[i + 1][j] != 0:
+                sum_of_differences += abs(log_2(board[i][j]) - log_2(board[i + 1][j]))
+    return -sum_of_differences
 
 
 # Abbreviation
