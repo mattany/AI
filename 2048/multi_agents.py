@@ -9,8 +9,9 @@ from game import Agent, Action
 VERBOSE = False
 
 #scalars
+ROUGH = 0
 STEEP = 1
-SMOOTH = 1
+SMOOTH = 5
 MONOTONE = 0
 FREE_TILES = 0
 MAX_TILE = 0
@@ -264,18 +265,17 @@ def better_evaluation_function(current_game_state):
     """
     "*** YOUR CODE HERE ***"
     h1 = smoothness_heuristic(current_game_state) * SMOOTH
-    h2 = monotonicity_heuristic(current_game_state) * MONOTONE
-    h3 = free_tiles_heuristic(current_game_state) * FREE_TILES
-    h4 = max_tile_heuristic(current_game_state) * MAX_TILE
+    # h2 = monotonicity_heuristic(current_game_state) * MONOTONE
+    # h3 = free_tiles_heuristic(current_game_state) * FREE_TILES
+    # h4 = max_tile_heuristic(current_game_state) * MAX_TILE
     h5 = steepness_heuristic(current_game_state) * STEEP
+    # h6 = roughness_heuristic(current_game_state) * ROUGH
     if VERBOSE:
-        # print("smoothness: ", h1, "\nmonotone: ", h2, " \nfree_tiles: ", h3, "\nmax_tile: ", h4, "\nsum: ",
-        #       h1 + h2 + h3 + h4, "\n\n")
-        print("smoothness: ", h1, "\nmonotone: ", h2, " \nfree_tiles: ", h3, "\nmax_tile: ", h4, "\nsum: ",
-              h1 + h2 + h3 + h4, "\n\n")
-
-    return h1 + h2 + h3 + h4 + h5
-
+        print("\nSMOOTH: ", h1, "\nSTEEP:", h5)
+        # print("smoothness: ", h1, "\nmonotone: ", h2, " \nfree_tiles: ", h3, "\nmax_tile: ", h4, "\nSteepness: ", h5,
+        #       "\nRoughness: ", h6, "\nsum: ", h1 + h2 + h3 + h4 + h5 + h6, "\n\n")
+    # return h1 + h2 + h3 + h4 + h5 + h6
+    return h1 + h5
 
 def monotonicity_heuristic(game_state):
     board = game_state.board
@@ -312,6 +312,7 @@ def free_tiles_heuristic(game_state):
 def log_2(number):
     return math.log(number, 2)
 
+
 def steepness_heuristic(game_state):
     """
     :param game_state: a given game state
@@ -329,6 +330,21 @@ def steepness_heuristic(game_state):
         for j in range(game_state._num_of_columns):
             score -= weight_matrix[i][j] * board[i][j]
     return score
+
+
+def roughness_heuristic(game_state):
+    board = game_state.board
+    # score = game_state.score
+    sum_of_differences = 0
+    for i in range(game_state._num_of_rows):
+        for j in range(game_state._num_of_columns - 1):
+            sum_of_differences += abs(board[i][j] - board[i][j + 1])
+    for j in range(game_state._num_of_columns):
+        for i in range(game_state._num_of_rows - 1):
+            sum_of_differences += abs(board[i][j] - board[i + 1][j])
+    return sum_of_differences
+
+
 
 
 def smoothness_heuristic(game_state):

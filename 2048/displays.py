@@ -1,5 +1,8 @@
 import time
 
+import math
+import numpy as np
+import matplotlib.pyplot as plt
 VERBOSE = True
 
 class SummaryDisplay(object):
@@ -40,3 +43,11 @@ class SummaryDisplay(object):
         print("average score: %s" % (sum(self.scores)/len(self.scores)))
         print("7000+ proportion: %s" % threshold_rate)
         print("average high tile: %s" % (sum(self.highest_tile)/len(self.highest_tile)))
+        plt.hist(self.scores, normed=True, bins=20)
+        plt.ylabel('Probability')
+        plt.xlabel('scores')
+        plt.show()
+        plt.hist([math.log(number, 2) for number in self.highest_tile], normed=True, bins=5)
+        plt.ylabel('Probability')
+        plt.xlabel('power of 2')
+        plt.show()
