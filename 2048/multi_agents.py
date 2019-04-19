@@ -3,15 +3,13 @@ import abc
 import math
 import util
 from game import Agent, Action
-
-
-
 VERBOSE = False
 
 #scalars
+SNAKE = 0
 ROUGH = 0
 STEEP = 1
-SMOOTH = 5
+SMOOTH = 10
 MONOTONE = 0
 FREE_TILES = 0
 MAX_TILE = 0
@@ -270,11 +268,11 @@ def better_evaluation_function(current_game_state):
     # h4 = max_tile_heuristic(current_game_state) * MAX_TILE
     h5 = steepness_heuristic(current_game_state) * STEEP
     # h6 = roughness_heuristic(current_game_state) * ROUGH
+    # h7 = snake_heuristic(current_game_state) * SNAKE
     if VERBOSE:
         print("\nSMOOTH: ", h1, "\nSTEEP:", h5)
         # print("smoothness: ", h1, "\nmonotone: ", h2, " \nfree_tiles: ", h3, "\nmax_tile: ", h4, "\nSteepness: ", h5,
         #       "\nRoughness: ", h6, "\nsum: ", h1 + h2 + h3 + h4 + h5 + h6, "\n\n")
-    # return h1 + h2 + h3 + h4 + h5 + h6
     return h1 + h5
 
 def monotonicity_heuristic(game_state):
@@ -331,6 +329,17 @@ def steepness_heuristic(game_state):
             score -= weight_matrix[i][j] * board[i][j]
     return score
 
+def snake_heuristic(game_state):
+    board = game_state.board
+    score = 0
+    weight_matrix = [[3, 2, 1, 0],
+                     [4, 5, 6, 7],
+                     [11, 10, 9, 8],
+                     [12, 13, 14, 15]]
+    for i in range(game_state._num_of_rows):
+        for j in range(game_state._num_of_columns):
+            score -= weight_matrix[i][j] * board[i][j]
+    return score
 
 def roughness_heuristic(game_state):
     board = game_state.board
