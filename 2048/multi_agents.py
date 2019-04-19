@@ -5,8 +5,10 @@ import util
 from game import Agent, Action
 VERBOSE = False
 
+
+
 #scalars
-SNAKE = 0
+RADIAL = 0
 ROUGH = 0
 STEEP = 1
 SMOOTH = 10
@@ -264,16 +266,16 @@ def better_evaluation_function(current_game_state):
     "*** YOUR CODE HERE ***"
     h1 = smoothness_heuristic(current_game_state) * SMOOTH
     # h2 = monotonicity_heuristic(current_game_state) * MONOTONE
-    # h3 = free_tiles_heuristic(current_game_state) * FREE_TILES
+    h3 = free_tiles_heuristic(current_game_state) * FREE_TILES
     # h4 = max_tile_heuristic(current_game_state) * MAX_TILE
     h5 = steepness_heuristic(current_game_state) * STEEP
     # h6 = roughness_heuristic(current_game_state) * ROUGH
-    # h7 = snake_heuristic(current_game_state) * SNAKE
+    h7 = snake_heuristic(current_game_state) * RADIAL
     if VERBOSE:
-        print("\nSMOOTH: ", h1, "\nSTEEP:", h5)
+        print("\nSMOOTH: ", h1, "\nSTEEP:", h5, "\nfree_tiles: ", h3)
         # print("smoothness: ", h1, "\nmonotone: ", h2, " \nfree_tiles: ", h3, "\nmax_tile: ", h4, "\nSteepness: ", h5,
         #       "\nRoughness: ", h6, "\nsum: ", h1 + h2 + h3 + h4 + h5 + h6, "\n\n")
-    return h1 + h5
+    return h1 + h5 + h3
 
 def monotonicity_heuristic(game_state):
     board = game_state.board
@@ -288,7 +290,6 @@ def monotonicity_heuristic(game_state):
             elif difference < 0:
                 row_grade -= 1
         score -= abs(row_grade)
-
     for j in range(game_state._num_of_columns):
         col_grade = 0
         for i in range(game_state._num_of_rows - 1):
@@ -332,10 +333,10 @@ def steepness_heuristic(game_state):
 def snake_heuristic(game_state):
     board = game_state.board
     score = 0
-    weight_matrix = [[3, 2, 1, 0],
-                     [4, 5, 6, 7],
-                     [11, 10, 9, 8],
-                     [12, 13, 14, 15]]
+    weight_matrix =  [[0, 1, 1, 1],
+                     [1, 2, 2, 2],
+                     [1, 2, 3, 3],
+                     [1, 2, 3, 4]]
     for i in range(game_state._num_of_rows):
         for j in range(game_state._num_of_columns):
             score -= weight_matrix[i][j] * board[i][j]
@@ -347,10 +348,12 @@ def roughness_heuristic(game_state):
     sum_of_differences = 0
     for i in range(game_state._num_of_rows):
         for j in range(game_state._num_of_columns - 1):
-            sum_of_differences += abs(board[i][j] - board[i][j + 1])
+            if board[i][j] != 0 and board[i][j + 1] != 0:
+                sum_of_differences += abs(board[i][j] - board[i][j + 1])
     for j in range(game_state._num_of_columns):
         for i in range(game_state._num_of_rows - 1):
-            sum_of_differences += abs(board[i][j] - board[i + 1][j])
+            if board[i][j] != 0 and board[i + 1][j] != 0:
+                sum_of_differences += abs(board[i][j] - board[i + 1][j])
     return sum_of_differences
 
 
@@ -370,10 +373,14 @@ def smoothness_heuristic(game_state):
         for j in range(game_state._num_of_columns - 1):
             if board[i][j] != 0 and board[i][j + 1] != 0:
                 sum_of_differences += abs(log_2(board[i][j]) - log_2(board[i][j + 1]))
+            # elif board[i][j] == 0 and board[i][j+1] == 0:
+            #     sum_of_differences -= 2
     for j in range(game_state._num_of_columns):
         for i in range(game_state._num_of_rows - 1):
             if board[i][j] != 0 and board[i + 1][j] != 0:
                 sum_of_differences += abs(log_2(board[i][j]) - log_2(board[i + 1][j]))
+            # elif board[i][j] == 0 and board[i + 1][j] == 0:
+            #     sum_of_differences -= 2
     return -sum_of_differences
 
 
