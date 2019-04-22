@@ -3,11 +3,14 @@ import abc
 import math
 import util
 from game import Agent, Action
+
+ACTION = 1
+
+STATE = 0
+
 VERBOSE = False
 
-
-
-#scalars
+# scalars
 RADIAL = 0
 ROUGH = 0
 STEEP = 1
@@ -181,59 +184,57 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        states = list()
         actions = game_state.get_legal_actions(OUR_AGENT)
-        for action in actions:
-            states.append((game_state.generate_successor(OUR_AGENT, action), action))  # (state, action_to_that_state)
-        # return the action lead to max state
-        return max([(self.min_value(state[0], -np.inf, np.inf, 1), state[1]) for state in states], key=lambda x: x[0])[
-            1]
+        states = [(game_state.generate_successor(OUR_AGENT, action), action)
+                  for action in actions]
 
-    def max_value(self, game_state, a, b, depth):
+        # The first maximizing agent call. Needed to get the successor state that yields the best score, rather than the
+        # value alone.
+        return max([(self.min_agent(state[STATE], -np.inf, np.inf, self.depth - 1), state[ACTION]) for state in states],
+                   key=lambda x: x[STATE])[ACTION]
+
+    def max_agent(self, game_state, alpha, beta, depth):
         """
         our agent move in 2048 game
         :param game_state: current state
         :param depth: keep track to know when to stop
         :return: value of state
         """
-        if depth == self.depth:
+        if depth == 0:
             return self.evaluation_function(game_state)
 
-        depth += 1
-        states = list()
+        depth -= 1
+        states = [game_state.generate_successor(OUR_AGENT, action)
+                  for action in game_state.get_legal_actions(OUR_AGENT)]
+        value = -np.inf  # minus infinity
 
-        v = -np.inf  # minus infinity
-
-        for action in game_state.get_legal_actions(OUR_AGENT):
-            states.append(game_state.generate_successor(OUR_AGENT, action))
         for state in states:
-            v = max(v, self.min_value(state, a, b, depth))
-            if v >= b:
-                return v
-            a = max(a, v)
-        return v
+            value = max(value, self.min_agent(state, alpha, beta, depth))
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+        return value
 
-    def min_value(self, game_state, a, b, depth):
+    def min_agent(self, game_state, alpha, beta, depth):
         """
         opponent move in 2048 game
         :param game_state: current state
         :param depth: keep track to know when to stop
         :return: value of state
         """
-        if depth == self.depth:
+        if depth == 0:
             return self.evaluation_function(game_state)
-        states = list()
 
-        v = np.inf  # infinity
+        states = [game_state.generate_successor(OPPONENT, action)
+                  for action in game_state.get_legal_actions(OPPONENT)]
+        value = np.inf  # infinity
 
-        for action in game_state.get_legal_actions(OPPONENT):
-            states.append(game_state.generate_successor(OPPONENT, action))
         for state in states:
-            v = min(v, self.max_value(state, a, b, depth))
-            if v >= b:
-                return v
-            b = min(b, v)
-        return v
+            value = min(value, self.max_agent(state, alpha, beta, depth))
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+        return value
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -272,10 +273,11 @@ def better_evaluation_function(current_game_state):
     # h6 = roughness_heuristic(current_game_state) * ROUGH
     h7 = snake_heuristic(current_game_state) * RADIAL
     if VERBOSE:
-        print("\nSMOOTH: ", h1, "\nSTEEP:", h5, "\nfree_tiles: ", h3)
+        print("\nSMOOTH:", h1, "\nSTEEP:", h5, "\nsum:", h1 + h5)
         # print("smoothness: ", h1, "\nmonotone: ", h2, " \nfree_tiles: ", h3, "\nmax_tile: ", h4, "\nSteepness: ", h5,
         #       "\nRoughness: ", h6, "\nsum: ", h1 + h2 + h3 + h4 + h5 + h6, "\n\n")
     return h1 + h5 + h3
+
 
 def monotonicity_heuristic(game_state):
     board = game_state.board
@@ -330,10 +332,11 @@ def steepness_heuristic(game_state):
             score -= weight_matrix[i][j] * board[i][j]
     return score
 
+
 def snake_heuristic(game_state):
     board = game_state.board
     score = 0
-    weight_matrix =  [[0, 1, 1, 1],
+    weight_matrix = [[0, 1, 1, 1],
                      [1, 2, 2, 2],
                      [1, 2, 3, 3],
                      [1, 2, 3, 4]]
@@ -341,6 +344,7 @@ def snake_heuristic(game_state):
         for j in range(game_state._num_of_columns):
             score -= weight_matrix[i][j] * board[i][j]
     return score
+
 
 def roughness_heuristic(game_state):
     board = game_state.board
@@ -357,8 +361,6 @@ def roughness_heuristic(game_state):
     return sum_of_differences
 
 
-
-
 def smoothness_heuristic(game_state):
     """
     :param game_state: a given game state
@@ -373,14 +375,10 @@ def smoothness_heuristic(game_state):
         for j in range(game_state._num_of_columns - 1):
             if board[i][j] != 0 and board[i][j + 1] != 0:
                 sum_of_differences += abs(log_2(board[i][j]) - log_2(board[i][j + 1]))
-            # elif board[i][j] == 0 and board[i][j+1] == 0:
-            #     sum_of_differences -= 2
     for j in range(game_state._num_of_columns):
         for i in range(game_state._num_of_rows - 1):
             if board[i][j] != 0 and board[i + 1][j] != 0:
                 sum_of_differences += abs(log_2(board[i][j]) - log_2(board[i + 1][j]))
-            # elif board[i][j] == 0 and board[i + 1][j] == 0:
-            #     sum_of_differences -= 2
     return -sum_of_differences
 
 
