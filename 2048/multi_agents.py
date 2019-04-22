@@ -127,12 +127,13 @@ class MinmaxAgent(MultiAgentSearchAgent):
         game_state.generate_successor(agent_index, action):
             Returns the successor game state after an agent takes an action
         """
-        states = list()
         actions = game_state.get_legal_actions(OUR_AGENT)
-        for action in actions:
-            states.append((game_state.generate_successor(OUR_AGENT, action), action))  # (state, action_to_that_state)
-        # return the action lead to max state
-        return max([(self.min_value(state[0], 1), state[1]) for state in states], key=lambda x: x[0])[1]
+        states = [(game_state.generate_successor(OUR_AGENT, action), action) for action in actions]
+
+        # The first maximizing agent call. Needed to get the successor state that yields the best score, rather than the
+        # value alone.
+        return max([(self.min_value(state[STATE], self.depth-1), state[ACTION]) for state in states],
+                   key=lambda x: x[STATE])[ACTION]
 
     def max_value(self, game_state, depth):
         """
@@ -141,19 +142,17 @@ class MinmaxAgent(MultiAgentSearchAgent):
         :param depth: keep track to know when to stop
         :return: value of state
         """
-        if depth == self.depth:
+        if depth == 0:
             return self.evaluation_function(game_state)
 
-        depth += 1
-        states = list()
+        depth -= 1
+        actions = game_state.get_legal_actions(OUR_AGENT)
+        states = [(game_state.generate_successor(OUR_AGENT, action)) for action in actions]
+        value = -np.inf  # minus infinity
 
-        v = -np.inf  # minus infinity
-
-        for action in game_state.get_legal_actions(OUR_AGENT):
-            states.append(game_state.generate_successor(OUR_AGENT, action))
         for state in states:
-            v = max(v, self.min_value(state, depth))
-        return v
+            value = max(value, self.min_value(state, depth))
+        return value
 
     def min_value(self, game_state, depth):
         """
@@ -162,17 +161,16 @@ class MinmaxAgent(MultiAgentSearchAgent):
         :param depth: keep track to know when to stop
         :return: value of state
         """
-        if depth == self.depth:
+        if depth == 0:
             return self.evaluation_function(game_state)
-        states = list()
 
-        v = np.inf  # infinity
+        actions = game_state.get_legal_actions(OUR_AGENT)
+        states = [(game_state.generate_successor(OUR_AGENT, action)) for action in actions]
+        value = np.inf  # infinity
 
-        for action in game_state.get_legal_actions(OPPONENT):
-            states.append(game_state.generate_successor(OPPONENT, action))
         for state in states:
-            v = min(v, self.max_value(state, depth))
-        return v
+            value = min(value, self.max_value(state, depth))
+        return value
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
