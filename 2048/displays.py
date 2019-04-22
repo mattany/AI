@@ -46,6 +46,7 @@ class SummaryDisplay(object):
         print("1024 amount: %s" % (self.highest_tile.count(1024)/len(self.highest_tile)))
         print("2048 amount: %s" % (self.highest_tile.count(2048)/len(self.highest_tile)))
         print("4096 amount: %s" % (self.highest_tile.count(4096)/len(self.highest_tile)))
+        print("average time: %s" % (sum(self.game_durations)/len(self.game_durations)))
         print("average high tile: %s" % (sum(self.highest_tile)/len(self.highest_tile)))
         plt.hist(self.scores, bins=100)
         plt.ylabel('Probability')
