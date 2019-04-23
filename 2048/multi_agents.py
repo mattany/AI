@@ -14,7 +14,7 @@ VERBOSE = False
 RADIAL = 0
 ROUGH = 0
 STEEP = 1
-SMOOTH = 10
+SMOOTH = 10.5
 MONOTONE = 0
 FREE_TILES = 0
 MAX_TILE = 0
@@ -142,16 +142,12 @@ class MinmaxAgent(MultiAgentSearchAgent):
         :param depth: keep track to know when to stop
         :return: value of state
         """
-        if depth == 0:
-            return self.evaluation_function(game_state)
-
-        depth -= 1
         actions = game_state.get_legal_actions(OUR_AGENT)
         states = [(game_state.generate_successor(OUR_AGENT, action)) for action in actions]
         value = -np.inf  # minus infinity
 
         for state in states:
-            value = max(value, self.min_value(state, depth))
+            value = max(value, self.min_value(state, depth - 1))
         return value
 
     def min_value(self, game_state, depth):
@@ -198,16 +194,12 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         :param depth: keep track to know when to stop
         :return: value of state
         """
-        if depth == 0:
-            return self.evaluation_function(game_state)
-
-        depth -= 1
-        states = [game_state.generate_successor(OUR_AGENT, action)
-                  for action in game_state.get_legal_actions(OUR_AGENT)]
+        actions = game_state.get_legal_actions(OUR_AGENT)
+        states = [game_state.generate_successor(OUR_AGENT, action) for action in actions]
         value = -np.inf  # minus infinity
 
         for state in states:
-            value = max(value, self.min_value(state, alpha, beta, depth))
+            value = max(value, self.min_value(state, alpha, beta, depth - 1))
             alpha = max(alpha, value)
             if alpha >= beta:
                 break
@@ -222,9 +214,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         if depth == 0:
             return self.evaluation_function(game_state)
-
-        states = [game_state.generate_successor(OPPONENT, action)
-                  for action in game_state.get_legal_actions(OPPONENT)]
+        actions = game_state.get_legal_actions(OPPONENT)
+        states = [game_state.generate_successor(OPPONENT, action) for action in actions]
         value = np.inf  # infinity
 
         for state in states:
@@ -273,16 +264,13 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         :param depth: keep track to know when to stop
         :return: value of state
         """
-        if depth == 0:
-            return self.evaluation_function(game_state)
 
-        depth -= 1
         actions = game_state.get_legal_actions(OUR_AGENT)
         states = [(game_state.generate_successor(OUR_AGENT, action)) for action in actions]
         value = -np.inf  # minus infinity
 
         for state in states:
-            value = max(value, self.expected_value(state, depth))
+            value = max(value, self.expected_value(state, depth - 1))
         return value
 
     def expected_value(self, game_state, depth):
@@ -379,7 +367,7 @@ def steepness_heuristic(game_state):
                      [3, 4, 5, 6]]
     for i in range(game_state._num_of_rows):
         for j in range(game_state._num_of_columns):
-            score -= weight_matrix[i][j] * board[i][j]
+            score += weight_matrix[i][j] * board[i][j]
     return score
 
 

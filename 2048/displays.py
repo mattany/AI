@@ -1,9 +1,10 @@
 import time
-
+import multi_agents
 import math
 import numpy as np
 import matplotlib.pyplot as plt
 VERBOSE = True
+
 
 class SummaryDisplay(object):
     def __init__(self):
@@ -35,6 +36,8 @@ class SummaryDisplay(object):
         threshold_rate = len(list(filter(lambda  x: x >= 7000, self.scores))) / len(self.scores)
         games = len(self.scores)
         print("="*30)
+        print("Remarks: %s" % REMARKS)
+        print("Heuristics: smooth: %s steep %s" % (multi_agents.SMOOTH, multi_agents.STEEP))
         print("number of games played: %s" % games)
         print("scores: %s" % self.scores)
         print("highest tile: %s" % self.highest_tile)
