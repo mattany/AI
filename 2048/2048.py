@@ -2,6 +2,7 @@ import argparse
 import numpy
 import os
 import util
+import multi_agents
 from game import Game, RandomOpponentAgent
 from game_state import GameState
 from graphics_display import GabrieleCirulli2048GraphicsDisplay
@@ -86,6 +87,7 @@ def main():
             initial_state = GameState(board=initial_board)
     game_runner = GameRunner(display=display, agent=agent, num_of_initial_tiles=args.num_of_initial_tiles,
                              sleep_between_actions=args.sleep_between_actions)
+    print("Heuristics: smooth: %s steep %s" % (multi_agents.SMOOTH, multi_agents.STEEP))
     for i in range(args.num_of_games):
         score = game_runner.new_game(initial_state=initial_state)
     if display is not None:

@@ -10,11 +10,12 @@ STATE = 0
 
 VERBOSE = False
 
+
 # scalars
 RADIAL = 0
 ROUGH = 0
 STEEP = 1
-SMOOTH = 10.5
+SMOOTH = 35
 MONOTONE = 0
 FREE_TILES = 0
 MAX_TILE = 0

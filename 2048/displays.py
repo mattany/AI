@@ -5,6 +5,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 VERBOSE = True
 
+REMARKS = ""
+
+
 
 class SummaryDisplay(object):
     def __init__(self):
@@ -36,7 +39,7 @@ class SummaryDisplay(object):
         threshold_rate = len(list(filter(lambda  x: x >= 7000, self.scores))) / len(self.scores)
         games = len(self.scores)
         print("="*30)
-        print("Remarks: %s" % REMARKS)
+
         print("Heuristics: smooth: %s steep %s" % (multi_agents.SMOOTH, multi_agents.STEEP))
         print("number of games played: %s" % games)
         print("scores: %s" % self.scores)
@@ -51,11 +54,12 @@ class SummaryDisplay(object):
         print("4096 amount: %s" % (self.highest_tile.count(4096)/len(self.highest_tile)))
         print("average time: %s" % (sum(self.game_durations)/len(self.game_durations)))
         print("average high tile: %s" % (sum(self.highest_tile)/len(self.highest_tile)))
+        print("Remarks: %s" % REMARKS)
         plt.hist(self.scores, bins=100)
         plt.ylabel('Probability')
-        plt.xlabel('scores')
+        plt.xlabel('scores Smooth:%s Steep:%s' % (multi_agents.SMOOTH, multi_agents.STEEP))
         plt.show()
-        plt.hist([math.log(number, 2) for number in self.highest_tile], bins=6)
+        plt.hist(self.highest_tile, bins=6)
         plt.ylabel('Probability')
-        plt.xlabel('power of 2')
+        plt.xlabel('power of 2 Smooth:%s Steep:%s' % (multi_agents.SMOOTH, multi_agents.STEEP))
         plt.show()
