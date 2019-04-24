@@ -42,9 +42,6 @@ class SummaryDisplay(object):
 
         print("Heuristics: smooth: %s steep %s" % (multi_agents.SMOOTH, multi_agents.STEEP))
         print("number of games played: %s" % games)
-        print("scores: %s" % self.scores)
-        print("highest tile: %s" % self.highest_tile)
-        print("game_durations: %s" % self.game_durations)
         print("win rate: %s" % win_rate)
         print("average score: %s" % (sum(self.scores)/len(self.scores)))
         print("7000+ proportion: %s" % threshold_rate)
@@ -54,6 +51,7 @@ class SummaryDisplay(object):
         print("4096 amount: %s" % (self.highest_tile.count(4096)/len(self.highest_tile)))
         print("average time: %s" % (sum(self.game_durations)/len(self.game_durations)))
         print("average high tile: %s" % (sum(self.highest_tile)/len(self.highest_tile)))
+        print("max score: %s min score: %s" % (max(self.scores), min(self.scores)))
         print("Remarks: %s" % REMARKS)
         plt.hist(self.scores, bins=100)
         plt.ylabel('Probability')
