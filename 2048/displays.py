@@ -34,25 +34,34 @@ class SummaryDisplay(object):
     def mainloop_iteration(self):
         pass
 
+    def tile_rate(self, tile):
+        return self.highest_tile.count(tile)/len(self.highest_tile)
+
+    def population_mean(self, list):
+        return sum(list) / len(list)
+
+    def population_variance(self, list):
+        mean = self.population_mean(list)
+        return sum([math.sqrt(pow((x - mean), 2)) for x in list]) / len(list)
+
     def print_stats(self):
         win_rate = len(list(filter(lambda x: x >= 2048, self.highest_tile))) / len(self.highest_tile)
         threshold_rate = len(list(filter(lambda  x: x >= 7000, self.scores))) / len(self.scores)
         games = len(self.scores)
         print("="*30)
-
         print("Heuristics: smooth: %s steep %s" % (multi_agents.SMOOTH, multi_agents.STEEP))
         print("number of games played: %s" % games)
         print("win rate: %s" % win_rate)
-        print("average score: %s" % (sum(self.scores)/len(self.scores)))
+        print("average score: %s" % self.population_mean(self.scores))
+        print("variance: %s" % self.population_variance(self.scores))
         print("7000+ proportion: %s" % threshold_rate)
-        print("512 amount: %s" % (self.highest_tile.count(512)/len(self.highest_tile)))
-        print("1024 amount: %s" % (self.highest_tile.count(1024)/len(self.highest_tile)))
-        print("2048 amount: %s" % (self.highest_tile.count(2048)/len(self.highest_tile)))
-        print("4096 amount: %s" % (self.highest_tile.count(4096)/len(self.highest_tile)))
+        print("less than 1024 rate: %s" % (1 - sum(self.tile_rate(x) for x in [2 ** y for y in range(10, 15, 1)])))
+        print("1024 rate: %s" % self.tile_rate(2 ** 10))
+        print("2048 rate: %s" % self.tile_rate(2 ** 11))
+        print("4096 rate: %s" % self.tile_rate(2 ** 12))
         print("average time: %s" % (sum(self.game_durations)/len(self.game_durations)))
         print("average high tile: %s" % (sum(self.highest_tile)/len(self.highest_tile)))
         print("max score: %s min score: %s" % (max(self.scores), min(self.scores)))
-        print("Remarks: %s" % REMARKS)
         plt.hist(self.scores, bins=100)
         plt.ylabel('Probability')
         plt.xlabel('scores Smooth:%s Steep:%s' % (multi_agents.SMOOTH, multi_agents.STEEP))
