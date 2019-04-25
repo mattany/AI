@@ -15,7 +15,7 @@ VERBOSE = False
 RADIAL = 0
 ROUGH = 0
 STEEP = 1
-SMOOTH = 30.2
+SMOOTH = 0
 MONOTONE = 0
 FREE_TILES = 0
 MAX_TILE = 0
@@ -72,6 +72,7 @@ class ReflexAgent(Agent):
 
         successor_game_state = current_game_state.generate_successor(action=action)
         return -roughness_heuristic(successor_game_state)
+
 
 
 def score_evaluation_function(current_game_state):
@@ -308,15 +309,16 @@ def better_evaluation_function(current_game_state):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    h1 = smoothness_heuristic(current_game_state) * SMOOTH
-    h3 = free_tiles_heuristic(current_game_state) * FREE_TILES
+
+    # h1 = smoothness_heuristic(current_game_state) * SMOOTH
+    h1 = 0
     h5 = steepness_heuristic(current_game_state) * STEEP
-    h7 = snake_heuristic(current_game_state) * RADIAL
+
     if VERBOSE:
         print("\nSMOOTH:", h1, "\nSTEEP:", h5, "\nsum:", h1 + h5)
         # print("smoothness: ", h1, "\nmonotone: ", h2, " \nfree_tiles: ", h3, "\nmax_tile: ", h4, "\nSteepness: ", h5,
         #       "\nRoughness: ", h6, "\nsum: ", h1 + h2 + h3 + h4 + h5 + h6, "\n\n")
-    return h1 + h5 + h3
+    return h1 + h5
 
 
 def monotonicity_heuristic(game_state):
@@ -397,6 +399,7 @@ def roughness_heuristic(game_state):
         for i in range(game_state._num_of_rows - 1):
             sum_of_differences += abs(board[i][j] - board[i + 1][j])
     return sum_of_differences
+
 
 
 def smoothness_heuristic(game_state):
