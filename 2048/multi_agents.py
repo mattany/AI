@@ -15,7 +15,7 @@ VERBOSE = False
 RADIAL = 0
 ROUGH = 0
 STEEP = 1
-SMOOTH = 30
+SMOOTH = 30.2
 MONOTONE = 0
 FREE_TILES = 0
 MAX_TILE = 0
@@ -72,7 +72,7 @@ class ReflexAgent(Agent):
 
         successor_game_state = current_game_state.generate_successor(action=action)
         # return monotonicity_heuristic(current_game_state)
-        return smoothness_heuristic(successor_game_state)
+        return 1
 
 
 def score_evaluation_function(current_game_state):
@@ -133,7 +133,9 @@ class MinmaxAgent(MultiAgentSearchAgent):
 
         # The first maximizing agent call. Needed to get the successor state that yields the best score, rather than the
         # score by itself.
-        return max([(self.min_value(state[STATE], self.depth-1), state[ACTION]) for state in states],
+
+        # print([(self.min_value(state[STATE], self.depth - 1), state[ACTION]) for state in states])
+        return max([(self.min_value(state[STATE], self.depth - 1), state[ACTION]) for state in states],
                    key=lambda x: x[STATE])[ACTION]
 
     def max_value(self, game_state, depth):
@@ -161,8 +163,8 @@ class MinmaxAgent(MultiAgentSearchAgent):
         if depth == 0:
             return self.evaluation_function(game_state)
 
-        actions = game_state.get_legal_actions(OUR_AGENT)
-        states = [(game_state.generate_successor(OUR_AGENT, action)) for action in actions]
+        actions = game_state.get_legal_actions(OPPONENT)
+        states = [(game_state.generate_successor(OPPONENT, action)) for action in actions]
         value = np.inf  # infinity
 
         for state in states:
@@ -180,8 +182,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         actions = game_state.get_legal_actions(OUR_AGENT)
-        states = [(game_state.generate_successor(OUR_AGENT, action), action)
-                  for action in actions]
+        states = [(game_state.generate_successor(OUR_AGENT, action), action) for action in actions]
 
         # The first maximizing agent call. Needed to get the successor state that yields the best score, rather than the
         # score by itself.
@@ -257,7 +258,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         return max([(self.expected_value(state[STATE], self.depth-1), state[ACTION]) for state in states],
                    key=lambda x: x[STATE])[ACTION]
 
-
     def max_value(self, game_state, depth):
         """
         our agent move in 2048 game
@@ -284,8 +284,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         if depth == 0:
             return self.evaluation_function(game_state)
 
-        actions = game_state.get_legal_actions(OUR_AGENT)
-        states = [(game_state.generate_successor(OUR_AGENT, action)) for action in actions]
+        actions = game_state.get_legal_actions(OPPONENT)
+        states = [(game_state.generate_successor(OPPONENT, action)) for action in actions]
         value = sum(self.max_value(state, depth) for state in states)/len(states)
         return value
 
