@@ -71,8 +71,7 @@ class ReflexAgent(Agent):
         # Useful information you can extract from a GameState (game_state.py)
 
         successor_game_state = current_game_state.generate_successor(action=action)
-        # return monotonicity_heuristic(current_game_state)
-        return 1
+        return -roughness_heuristic(successor_game_state)
 
 
 def score_evaluation_function(current_game_state):
@@ -135,7 +134,7 @@ class MinmaxAgent(MultiAgentSearchAgent):
         # score by itself.
 
         # print([(self.min_value(state[STATE], self.depth - 1), state[ACTION]) for state in states])
-        return max([(self.min_value(state[STATE], self.depth - 1), state[ACTION]) for state in states],
+        return max([(self.min_value(state[STATE], self.depth), state[ACTION]) for state in states],
                    key=lambda x: x[STATE])[ACTION]
 
     def max_value(self, game_state, depth):
@@ -145,12 +144,15 @@ class MinmaxAgent(MultiAgentSearchAgent):
         :param depth: keep track to know when to stop
         :return: value of state
         """
+        if depth == 0:
+            return self.evaluation_function(game_state)
+
         actions = game_state.get_legal_actions(OUR_AGENT)
         states = [(game_state.generate_successor(OUR_AGENT, action)) for action in actions]
         value = -np.inf  # minus infinity
 
         for state in states:
-            value = max(value, self.min_value(state, depth - 1))
+            value = max(value, self.min_value(state, depth))
         return value
 
     def min_value(self, game_state, depth):
@@ -160,15 +162,13 @@ class MinmaxAgent(MultiAgentSearchAgent):
         :param depth: keep track to know when to stop
         :return: value of state
         """
-        if depth == 0:
-            return self.evaluation_function(game_state)
 
         actions = game_state.get_legal_actions(OPPONENT)
         states = [(game_state.generate_successor(OPPONENT, action)) for action in actions]
         value = np.inf  # infinity
 
         for state in states:
-            value = min(value, self.max_value(state, depth))
+            value = min(value, self.max_value(state, depth - 1))
         return value
 
 
@@ -186,7 +186,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
 
         # The first maximizing agent call. Needed to get the successor state that yields the best score, rather than the
         # score by itself.
-        return max([(self.min_value(state[STATE], -np.inf, np.inf, self.depth - 1), state[ACTION]) for state in states],
+        return max([(self.min_value(state[STATE], -np.inf, np.inf, self.depth), state[ACTION]) for state in states],
                    key=lambda x: x[STATE])[ACTION]
 
     def max_value(self, game_state, alpha, beta, depth):
@@ -196,12 +196,16 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         :param depth: keep track to know when to stop
         :return: value of state
         """
+
+        if depth == 0:
+            return self.evaluation_function(game_state)
+
         actions = game_state.get_legal_actions(OUR_AGENT)
         states = [game_state.generate_successor(OUR_AGENT, action) for action in actions]
         value = -np.inf  # minus infinity
 
         for state in states:
-            value = max(value, self.min_value(state, alpha, beta, depth - 1))
+            value = max(value, self.min_value(state, alpha, beta, depth))
             alpha = max(alpha, value)
             if alpha >= beta:
                 break
@@ -214,14 +218,13 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         :param depth: keep track to know when to stop
         :return: value of state
         """
-        if depth == 0:
-            return self.evaluation_function(game_state)
+
         actions = game_state.get_legal_actions(OPPONENT)
         states = [game_state.generate_successor(OPPONENT, action) for action in actions]
         value = np.inf  # infinity
 
         for state in states:
-            value = min(value, self.max_value(state, alpha, beta, depth))
+            value = min(value, self.max_value(state, alpha, beta, depth - 1))
             beta = min(beta, value)
             if alpha >= beta:
                 break
@@ -255,7 +258,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
         # The first maximizing agent call. Needed to get the successor state that yields the best score, rather than the
         # score by itself.
-        return max([(self.expected_value(state[STATE], self.depth-1), state[ACTION]) for state in states],
+        return max([(self.expected_value(state[STATE], self.depth), state[ACTION]) for state in states],
                    key=lambda x: x[STATE])[ACTION]
 
     def max_value(self, game_state, depth):
@@ -266,12 +269,15 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         :return: value of state
         """
 
+        if depth == 0:
+            return self.evaluation_function(game_state)
+
         actions = game_state.get_legal_actions(OUR_AGENT)
         states = [(game_state.generate_successor(OUR_AGENT, action)) for action in actions]
         value = -np.inf  # minus infinity
 
         for state in states:
-            value = max(value, self.expected_value(state, depth - 1))
+            value = max(value, self.expected_value(state, depth))
         return value
 
     def expected_value(self, game_state, depth):
@@ -281,12 +287,10 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         :param depth: keep track to know when to stop
         :return: value of state
         """
-        if depth == 0:
-            return self.evaluation_function(game_state)
 
         actions = game_state.get_legal_actions(OPPONENT)
         states = [(game_state.generate_successor(OPPONENT, action)) for action in actions]
-        value = sum(self.max_value(state, depth) for state in states)/len(states)
+        value = sum(self.max_value(state, depth - 1) for state in states)/len(states)
         return value
 
 
@@ -305,11 +309,8 @@ def better_evaluation_function(current_game_state):
     """
     "*** YOUR CODE HERE ***"
     h1 = smoothness_heuristic(current_game_state) * SMOOTH
-    # h2 = monotonicity_heuristic(current_game_state) * MONOTONE
     h3 = free_tiles_heuristic(current_game_state) * FREE_TILES
-    # h4 = max_tile_heuristic(current_game_state) * MAX_TILE
     h5 = steepness_heuristic(current_game_state) * STEEP
-    # h6 = roughness_heuristic(current_game_state) * ROUGH
     h7 = snake_heuristic(current_game_state) * RADIAL
     if VERBOSE:
         print("\nSMOOTH:", h1, "\nSTEEP:", h5, "\nsum:", h1 + h5)
@@ -391,12 +392,10 @@ def roughness_heuristic(game_state):
     sum_of_differences = 0
     for i in range(game_state._num_of_rows):
         for j in range(game_state._num_of_columns - 1):
-            if board[i][j] != 0 and board[i][j + 1] != 0:
-                sum_of_differences += abs(board[i][j] - board[i][j + 1])
+            sum_of_differences += abs(board[i][j] - board[i][j + 1])
     for j in range(game_state._num_of_columns):
         for i in range(game_state._num_of_rows - 1):
-            if board[i][j] != 0 and board[i + 1][j] != 0:
-                sum_of_differences += abs(board[i][j] - board[i + 1][j])
+            sum_of_differences += abs(board[i][j] - board[i + 1][j])
     return sum_of_differences
 
 
