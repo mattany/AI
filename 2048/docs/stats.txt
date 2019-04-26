@@ -1,0 +1,169 @@
+/usr/bin/python3.6 /home/mattan/PycharmProjects/AI/2048/2048.py --agent=AlphaBetaAgent --depth=2 --evaluation_function=better --num_of_games=50 --display=SummaryDisplay
+Heuristics: smooth: 80 steep 1
+score: 18228
+highest tile: 1024
+game_duration: 336.7415699958801
+score: 16740
+highest tile: 1024
+game_duration: 310.90077328681946
+score: 17012
+highest tile: 1024
+game_duration: 156.68942308425903
+score: 22888
+highest tile: 2048
+game_duration: 265.8086929321289
+score: 25100
+highest tile: 2048
+game_duration: 243.97734999656677
+score: 16640
+highest tile: 1024
+game_duration: 147.26475501060486
+score: 35248
+highest tile: 2048
+game_duration: 448.31873059272766
+score: 25832
+highest tile: 2048
+game_duration: 413.26895117759705
+score: 17104
+highest tile: 1024
+game_duration: 351.01778054237366
+score: 8412
+highest tile: 512
+game_duration: 215.60990858078003
+score: 34524
+highest tile: 2048
+game_duration: 378.71147060394287
+score: 28100
+highest tile: 2048
+game_duration: 232.0220160484314
+score: 28016
+highest tile: 2048
+game_duration: 395.7844271659851
+score: 23764
+highest tile: 2048
+game_duration: 260.38509130477905
+score: 28692
+highest tile: 2048
+game_duration: 403.0165812969208
+score: 7856
+highest tile: 512
+game_duration: 155.06837511062622
+score: 34744
+highest tile: 2048
+game_duration: 383.201048374176
+score: 12524
+highest tile: 1024
+game_duration: 213.93009114265442
+score: 16956
+highest tile: 1024
+game_duration: 218.0046727657318
+score: 28252
+highest tile: 2048
+game_duration: 450.55883836746216
+score: 17948
+highest tile: 1024
+game_duration: 335.9433431625366
+score: 16180
+highest tile: 1024
+game_duration: 157.51709842681885
+score: 12488
+highest tile: 1024
+game_duration: 212.606440782547
+score: 37020
+highest tile: 2048
+game_duration: 536.9138875007629
+score: 31564
+highest tile: 2048
+game_duration: 496.9243643283844
+score: 14684
+highest tile: 1024
+game_duration: 284.53106784820557
+score: 34564
+highest tile: 2048
+game_duration: 411.96319007873535
+score: 11892
+highest tile: 1024
+game_duration: 255.86267352104187
+score: 13300
+highest tile: 1024
+game_duration: 276.6406798362732
+score: 15056
+highest tile: 1024
+game_duration: 254.59173941612244
+score: 34308
+highest tile: 2048
+game_duration: 491.17848801612854
+score: 17476
+highest tile: 1024
+game_duration: 259.188148021698
+score: 5884
+highest tile: 512
+game_duration: 69.66480493545532
+score: 12120
+highest tile: 1024
+game_duration: 103.12646722793579
+score: 27456
+highest tile: 2048
+game_duration: 414.4486994743347
+score: 18128
+highest tile: 1024
+game_duration: 350.5635619163513
+score: 32692
+highest tile: 2048
+game_duration: 404.9358537197113
+score: 34552
+highest tile: 2048
+game_duration: 477.9907886981964
+score: 29000
+highest tile: 2048
+game_duration: 248.56418085098267
+score: 32032
+highest tile: 2048
+game_duration: 438.15279173851013
+score: 36612
+highest tile: 2048
+game_duration: 501.65806007385254
+score: 50780
+highest tile: 4096
+game_duration: 412.375040769577
+score: 32320
+highest tile: 2048
+game_duration: 467.41603112220764
+score: 12484
+highest tile: 1024
+game_duration: 210.2934775352478
+score: 29044
+highest tile: 2048
+game_duration: 203.3039903640747
+score: 34812
+highest tile: 2048
+game_duration: 241.39441013336182
+score: 15164
+highest tile: 1024
+game_duration: 133.962828874588
+score: 8112
+highest tile: 512
+game_duration: 91.01147651672363
+score: 23280
+highest tile: 2048
+game_duration: 177.7509548664093
+score: 15488
+highest tile: 1024
+game_duration: 150.19582319259644
+==============================
+scores: [18228, 16740, 17012, 22888, 25100, 16640, 35248, 25832, 17104, 8412, 34524, 28100, 28016, 23764, 28692, 7856, 34744, 12524, 16956, 28252, 17948, 16180, 12488, 37020, 31564, 14684, 34564, 11892, 13300, 15056, 34308, 17476, 5884, 12120, 27456, 18128, 32692, 34552, 29000, 32032, 36612, 50780, 32320, 12484, 29044, 34812, 15164, 8112, 23280, 15488]
+highest tile: [1024, 1024, 1024, 2048, 2048, 1024, 2048, 2048, 1024, 512, 2048, 2048, 2048, 2048, 2048, 512, 2048, 1024, 1024, 2048, 1024, 1024, 1024, 2048, 2048, 1024, 2048, 1024, 1024, 1024, 2048, 1024, 512, 1024, 2048, 1024, 2048, 2048, 2048, 2048, 2048, 4096, 2048, 1024, 2048, 2048, 1024, 512, 2048, 1024]
+Heuristics: smooth: 80 steep 1
+number of games played: 50
+win rate: 0.52
+average score: 23061.44
+variance: 8630.88
+7000+ proportion: 0.98
+less than 1024 rate: 0.07999999999999996
+1024 rate: 0.4
+2048 rate: 0.5
+4096 rate: 0.02
+average time: 301.0190182065964
+average high tile: 1556.48
+max score: 50780 min score: 5884
+Press Enter to continue...
