@@ -15,7 +15,7 @@ VERBOSE = False
 RADIAL = 0
 ROUGH = 0
 STEEP = 1
-SMOOTH = 0
+SMOOTH = 80
 MONOTONE = 0
 FREE_TILES = 0
 MAX_TILE = 0
@@ -310,8 +310,8 @@ def better_evaluation_function(current_game_state):
     """
     "*** YOUR CODE HERE ***"
 
-    # h1 = smoothness_heuristic(current_game_state) * SMOOTH
-    h1 = 0
+    h1 = smoothness_heuristic(current_game_state) * SMOOTH
+    # h1 = 0
     h5 = steepness_heuristic(current_game_state) * STEEP
 
     if VERBOSE:
