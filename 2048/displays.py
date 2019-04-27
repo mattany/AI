@@ -25,8 +25,16 @@ class SummaryDisplay(object):
             game_end_time = time.time()
             game_duration = game_end_time - self.game_start_time
             if VERBOSE:
+                win_rate = len(list(filter(lambda x: x >= 2048, self.highest_tile))) / len(self.highest_tile)
                 print("score: %s\nhighest tile: %s\ngame_duration: %s" % (new_state.score, new_state.board.max(),
                                                                       game_duration))
+                print("average time: %s" % (sum(self.game_durations)/len(self.game_durations)))
+                print("win rate: %s" % win_rate)
+                print("average score: %s" % self.population_mean(self.scores))
+                print("average high tile: %s" % (sum(self.highest_tile)/len(self.highest_tile)))
+                print("variance: %s" % self.population_variance(self.scores))
+                print("number of games played: %s" % len(self.scores))
+
             self.scores.append(new_state.score)
             self.highest_tile.append(new_state.board.max())
             self.game_durations.append(game_duration)
