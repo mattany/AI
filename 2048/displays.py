@@ -35,8 +35,7 @@ class SummaryDisplay(object):
                 print("average time: %s" % (sum(self.game_durations)/len(self.game_durations)))
                 print("win rate: %s" % win_rate)
                 print("average score: %s" % self.population_mean(self.scores))
-                print("average high tile: %s" % (sum(self.highest_tile)/len(self.highest_tile)))
-                print("variance: %s" % self.population_variance(self.scores))
+                print("times: %s" % self.game_durations)
                 print("number of games played: %s\n\n" % len(self.scores))
 
     def mainloop_iteration(self):
@@ -57,6 +56,7 @@ class SummaryDisplay(object):
         threshold_rate = len(list(filter(lambda  x: x >= 7000, self.scores))) / len(self.scores)
         games = len(self.scores)
         print("="*30)
+        print("with optimized")
         print("scores: %s" % self.scores)
         print("highest tile: %s" % self.highest_tile)
         # print("Heuristics: smooth: %s steep %s" % (multi_agents.SMOOTH, multi_agents.STEEP))
@@ -73,6 +73,7 @@ class SummaryDisplay(object):
         print("1024 rate: %s" % self.tile_rate(2 ** 10))
         print("2048 rate: %s" % self.tile_rate(2 ** 11))
         print("4096 rate: %s" % self.tile_rate(2 ** 12))
+        print("times: %s" % self.game_durations)
         print("average time: %s" % (sum(self.game_durations)/len(self.game_durations)))
         print("average high tile: %s" % (sum(self.highest_tile)/len(self.highest_tile)))
         print("max score: %s min score: %s" % (max(self.scores), min(self.scores)))
