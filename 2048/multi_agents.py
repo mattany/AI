@@ -15,7 +15,7 @@ VERBOSE = False
 RADIAL = 0
 ROUGH = 0
 STEEP = 1
-SMOOTH = 83
+SMOOTH = 83.5
 MONOTONE = 0
 FREE_TILES = 0
 MAX_TILE = 0
@@ -67,12 +67,8 @@ class ReflexAgent(Agent):
         GameStates (GameState.py) and returns a number, where higher numbers are better.
 
         """
-
-        # Useful information you can extract from a GameState (game_state.py)
-
         successor_game_state = current_game_state.generate_successor(action=action)
         return -roughness_heuristic(successor_game_state)
-
 
 
 def score_evaluation_function(current_game_state):
@@ -110,6 +106,7 @@ class MultiAgentSearchAgent(Agent):
         return
 
 
+
 class MinmaxAgent(MultiAgentSearchAgent):
     def get_action(self, game_state):
         """
@@ -131,10 +128,8 @@ class MinmaxAgent(MultiAgentSearchAgent):
         actions = game_state.get_legal_actions(OUR_AGENT)
         states = [(game_state.generate_successor(OUR_AGENT, action), action) for action in actions]
 
-        # The first maximizing agent call. Needed to get the successor state that yields the best score, rather than the
-        # score by itself.
-
-        # print([(self.min_value(state[STATE], self.depth - 1), state[ACTION]) for state in states])
+        # The first maximizing agent call. Needed to get the successor state
+        # that yields the best score, rather than the score by itself.
         return max([(self.min_value(state[STATE], self.depth), state[ACTION]) for state in states],
                    key=lambda x: x[STATE])[ACTION]
 
@@ -257,8 +252,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         actions = game_state.get_legal_actions(OUR_AGENT)
         states = [(game_state.generate_successor(OUR_AGENT, action), action) for action in actions]
 
-        # The first maximizing agent call. Needed to get the successor state that yields the best score, rather than the
-        # score by itself.
+        # The first maximizing agent call. Needed to get the successor state that yields the
+        # best score, rather than the score by itself.
         return max([(self.expected_value(state[STATE], self.depth), state[ACTION]) for state in states],
                    key=lambda x: x[STATE])[ACTION]
 
@@ -295,61 +290,16 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         return value
 
 
-
-
-def max_tile_heuristic(game_state):
-    board = game_state.board
-    return log_2(np.max(board))
-
-
 def better_evaluation_function(current_game_state):
     """
     Your extreme 2048 evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION: A weighted sum of 2 heuristic functions. Each function is described in its own
+    docstring
     """
-    "*** YOUR CODE HERE ***"
-
     h1 = smoothness_heuristic(current_game_state) * SMOOTH
-    # h1 = 0
     h5 = steepness_heuristic(current_game_state) * STEEP
-
-    if VERBOSE:
-        print("\nSMOOTH:", h1, "\nSTEEP:", h5, "\nsum:", h1 + h5)
-        # print("smoothness: ", h1, "\nmonotone: ", h2, " \nfree_tiles: ", h3, "\nmax_tile: ", h4, "\nSteepness: ", h5,
-        #       "\nRoughness: ", h6, "\nsum: ", h1 + h2 + h3 + h4 + h5 + h6, "\n\n")
     return h1 + h5
-
-
-def monotonicity_heuristic(game_state):
-    board = game_state.board
-    score = 0
-
-    for i in range(game_state._num_of_rows):
-        row_grade = 0
-        for j in range(game_state._num_of_columns - 1):
-            difference = board[i][j] - board[i][j + 1]
-            if difference > 0:
-                row_grade += 1
-            elif difference < 0:
-                row_grade -= 1
-        score -= abs(row_grade)
-    for j in range(game_state._num_of_columns):
-        col_grade = 0
-        for i in range(game_state._num_of_rows - 1):
-            difference = board[i][j] - board[i + 1][j]
-            if difference > 0:
-                col_grade += 1
-            elif difference < 0:
-                col_grade -= 1
-        score -= abs(col_grade)
-
-    return score
-
-
-def free_tiles_heuristic(game_state):
-    board = game_state.board
-    return np.count_nonzero(board)
 
 
 def log_2(number):
@@ -359,8 +309,8 @@ def log_2(number):
 def steepness_heuristic(game_state):
     """
     :param game_state: a given game state
-    :return: The steepness score of the board, defined by a weight matrix that gives higher scores to boards that focus
-    the weight in one corner.
+    :return: The steepness score of the board, defined by a weight matrix that gives higher scores
+    to boards that focus the weight in one corner.
     Note that the given matrix works only for 4x4 boards.
     """
     board = game_state.board
@@ -375,39 +325,12 @@ def steepness_heuristic(game_state):
     return score
 
 
-def snake_heuristic(game_state):
-    board = game_state.board
-    score = 0
-    weight_matrix = [[0, 1, 1, 1],
-                     [1, 2, 2, 2],
-                     [1, 2, 3, 3],
-                     [1, 2, 3, 4]]
-    for i in range(game_state._num_of_rows):
-        for j in range(game_state._num_of_columns):
-            score -= weight_matrix[i][j] * board[i][j]
-    return score
-
-
-def roughness_heuristic(game_state):
-    board = game_state.board
-    # score = game_state.score
-    sum_of_differences = 0
-    for i in range(game_state._num_of_rows):
-        for j in range(game_state._num_of_columns - 1):
-            sum_of_differences += abs(board[i][j] - board[i][j + 1])
-    for j in range(game_state._num_of_columns):
-        for i in range(game_state._num_of_rows - 1):
-            sum_of_differences += abs(board[i][j] - board[i + 1][j])
-    return sum_of_differences
-
-
-
 def smoothness_heuristic(game_state):
     """
     :param game_state: a given game state
     :return: The smoothness score of the board, defined as the negative of the sum of differences
-    between adjacent tiles on a board. The differences are in base 2 to signify the number of tile merges needed for the
-    lower tile to reach the higher tile
+    between adjacent tiles on a board. The differences are in base 2 to signify the number of tile
+    merges needed for the lower tile to reach the higher tile
     """
     board = game_state.board
     # score = game_state.score
@@ -421,6 +344,23 @@ def smoothness_heuristic(game_state):
             if board[i][j] != 0 and board[i + 1][j] != 0:
                 sum_of_differences += abs(log_2(board[i][j]) - log_2(board[i + 1][j]))
     return -sum_of_differences
+
+
+def roughness_heuristic(game_state):
+    """
+    :param game_state: a given game state
+    :return: same as smoothness, but without log. This worked better for reflex agent.
+    """
+    board = game_state.board
+    # score = game_state.score
+    sum_of_differences = 0
+    for i in range(game_state._num_of_rows):
+        for j in range(game_state._num_of_columns - 1):
+            sum_of_differences += abs(board[i][j] - board[i][j + 1])
+    for j in range(game_state._num_of_columns):
+        for i in range(game_state._num_of_rows - 1):
+            sum_of_differences += abs(board[i][j] - board[i + 1][j])
+    return sum_of_differences
 
 
 # Abbreviation
