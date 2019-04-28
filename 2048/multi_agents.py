@@ -337,41 +337,16 @@ def smoothness_heuristic(game_state):
     """
     board = game_state.board
     sum_of_differences = 0
-    coords = [(i, j) for i in range(game_state._num_of_rows - 1) for j in range(game_state._num_of_columns - 1) if board[i][j]]
+    coords = [(i, j) for i in range(game_state._num_of_rows) for j in range(game_state._num_of_columns) if board[i][j]]
     for coord in coords:
         i = coord[ROW]
         j = coord[COL]
-        if board[i + 1][j] != 0:
+        if i + 1 < game_state._num_of_rows and board[i + 1][j] != 0:
             sum_of_differences += abs(log_2(board[i + 1][j]) - log_2(board[i][j]))
-        if board[i][j + 1] != 0:
+        if j + 1 < game_state._num_of_columns and board[i][j + 1] != 0:
             sum_of_differences += abs(log_2(board[i][j]) - log_2(board[i][j + 1]))
 
     return -sum_of_differences
-
-
-#
-# def smoothness_heuristic(game_state):
-#     """
-#     :param game_state: a given game state
-#     :return: The smoothness score of the board, defined as the negative of the sum of differences
-#     between adjacent tiles on a board. The differences are in base 2 to signify the number of tile
-#     merges needed for the lower tile to reach the higher tile
-#     """
-#     board = game_state.board
-#     # score = game_state.score
-#     sum_of_differences = 0
-#
-#     for i in range(game_state._num_of_rows):
-#         for j in range(game_state._num_of_columns - 1):
-#             if board[i][j] != 0 and board[i][j + 1] != 0:
-#                 sum_of_differences += abs(log_2(board[i][j]) - log_2(board[i][j + 1]))
-#
-#     for j in range(game_state._num_of_columns):
-#         for i in range(game_state._num_of_rows - 1):
-#             if board[i][j] != 0 and board[i + 1][j] != 0:
-#                 sum_of_differences += abs(log_2(board[i][j]) - log_2(board[i + 1][j]))
-#
-#     return -sum_of_differences
 
 
 def roughness_heuristic(game_state):
