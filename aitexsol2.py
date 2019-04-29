@@ -6,8 +6,6 @@ X = 1
 O = -1
 
 
-
-
 class Board:
 
     def __init__(self):
@@ -25,6 +23,7 @@ class Board:
         else:
             assert False
 
+    # def eval(self, board):
 
     def __str__(self):
         string = list()
@@ -46,21 +45,57 @@ class Board:
         return ''.join(string)
 
 
+# if __name__ == '__main__':
+#     a = Board()
+#     empty = Node(str(a))
+#     for i in range(3):
+#         for j in range(3):
+#             a.insert(i, j, "x")
+#             b = Node(str(a), parent=empty)
+#             added = list()
+#             for k in range(3):
+#                 for l in range(3):
+#                     if i != k or j != l:
+#                         for (m, n) in added:
+#                             if i - m == k - i and j - n == j - l:
+#                                 a.insert(m, n, "o")
+#                                 Node(str(a), parent=b)
+#                                 a.insert(m, n, "none")
+#                                 break
+#                             elif i - m == l - i and j - n == j - k:
+#                                 a.insert(m, n, "o")
+#                                 Node(str(a), parent=b)
+#                                 a.insert(m, n, "none")
+#                                 break
+#                             elif i - m == l - j and i - n == j - k:
+#                                 a.insert(m, n, "o")
+#                                 Node(str(a), parent=b)
+#                                 a.insert(m, n, "none")
+#                                 break
+#                             elif i - m == k - j and i - n == j - l:
+#                                 a.insert(m, n, "o")
+#                                 Node(str(a), parent=b)
+#                                 a.insert(m, n, "none")
+#                                 break
+#                         else:
+#                             a.insert(k, l, "o")
+#                             Node(str(a), parent=b)
+#                             a.insert(k, l, "none")
+#                             added.append((k, l))
+#
+#
 
-if __name__ == '__main__':
-    a = Board()
-    empty = Node(str(a))
-    for i in range(3):
-        for j in range(3):
-            a.insert(i, j, "x")
-            b = Node(str(a), parent=empty)
-            for k in range(3):
-                for l in range(3):
-                    if k != i or j != l:
-                        a.insert(k, l, "o")
-                        Node(str(a), parent=b)
-                        a.insert(k, l, "none")
+                        # if (k, l) in [(0, 0), (1, 1), (2, 2), (0, 2), (0, 1), (1, 2)] or (i == l and j == k):
+                        #     a.insert(k, l, "o")
+                        #     Node(str(a), parent=b)
+                        #     a.insert(k, l, "none")
+                        # else:
+                        #     a.insert(l, k, "o")
+                        #     Node(str(a), parent=b)
+                        #     a.insert(l, k, "none")
+
             a.insert(i, j, "none")
+
     RenderTreeGraph(empty).to_picture("tree.png")
     # for pre, fill, node in RenderTree(empty):
     #     print("%s%s" % (pre, node.name))
