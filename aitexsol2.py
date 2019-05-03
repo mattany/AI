@@ -45,45 +45,48 @@ class Board:
         return ''.join(string)
 
 
-# if __name__ == '__main__':
-#     a = Board()
-#     empty = Node(str(a))
-#     for i in range(3):
-#         for j in range(3):
-#             a.insert(i, j, "x")
-#             b = Node(str(a), parent=empty)
-#             added = list()
-#             for k in range(3):
-#                 for l in range(3):
-#                     if i != k or j != l:
-#                         for (m, n) in added:
-#                             if i - m == k - i and j - n == j - l:
-#                                 a.insert(m, n, "o")
-#                                 Node(str(a), parent=b)
-#                                 a.insert(m, n, "none")
-#                                 break
-#                             elif i - m == l - i and j - n == j - k:
-#                                 a.insert(m, n, "o")
-#                                 Node(str(a), parent=b)
-#                                 a.insert(m, n, "none")
-#                                 break
-#                             elif i - m == l - j and i - n == j - k:
-#                                 a.insert(m, n, "o")
-#                                 Node(str(a), parent=b)
-#                                 a.insert(m, n, "none")
-#                                 break
-#                             elif i - m == k - j and i - n == j - l:
-#                                 a.insert(m, n, "o")
-#                                 Node(str(a), parent=b)
-#                                 a.insert(m, n, "none")
-#                                 break
-#                         else:
-#                             a.insert(k, l, "o")
-#                             Node(str(a), parent=b)
-#                             a.insert(k, l, "none")
-#                             added.append((k, l))
-#
-#
+if __name__ == '__main__':
+    board = Board()
+    a = Node(str(board))
+    board_list = [[0] for i in range(9)]
+    for i in range(3):
+        for j in range(3):
+            board.insert(i, j, "x")
+            b = Node(str(board), parent=a)
+            board_list[3*i+j][0]=b
+    print(board_list)
+            # added = list()
+            # for k in range(3):
+            #     for l in range(3):
+            #         if i != k or j != l:
+            #             for (m, n) in added:
+            #                 if i - m == k - i and j - n == j - l:
+            #                     board.insert(m, n, "o")
+            #                     Node(str(board), parent=b)
+            #                     board.insert(m, n, "none")
+            #                     break
+            #                 elif i - m == l - i and j - n == j - k:
+            #                     board.insert(m, n, "o")
+            #                     Node(str(board), parent=b)
+            #                     board.insert(m, n, "none")
+            #                     break
+            #                 elif i - m == l - j and i - n == j - k:
+            #                     board.insert(m, n, "o")
+            #                     Node(str(board), parent=b)
+            #                     board.insert(m, n, "none")
+            #                     break
+            #                 elif i - m == k - j and i - n == j - l:
+            #                     board.insert(m, n, "o")
+            #                     Node(str(board), parent=b)
+            #                     board.insert(m, n, "none")
+            #                     break
+            #             else:
+            #                 board.insert(k, l, "o")
+            #                 Node(str(board), parent=b)
+            #                 board.insert(k, l, "none")
+            #                 added.append((k, l))
+            #
+
 
                         # if (k, l) in [(0, 0), (1, 1), (2, 2), (0, 2), (0, 1), (1, 2)] or (i == l and j == k):
                         #     a.insert(k, l, "o")
@@ -94,9 +97,8 @@ class Board:
                         #     Node(str(a), parent=b)
                         #     a.insert(l, k, "none")
 
-            a.insert(i, j, "none")
+            # board.insert(i, j, "none")
 
-    RenderTreeGraph(empty).to_picture("tree.png")
+    # RenderTreeGraph(a).to_picture("tree.png")
     # for pre, fill, node in RenderTree(empty):
     #     print("%s%s" % (pre, node.name))
-    #
