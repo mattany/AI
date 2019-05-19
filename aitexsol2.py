@@ -47,82 +47,106 @@ import random
 #
 
 
-def board():
-    tuples = [[0,[]] for i in range(3)]
-    for i, item in enumerate(tuples):
-        teams = ['a', 'b', 'c', 'd']
-        tuples[i][0] = random.randint(1,8)
-        num_teams = len(teams)
-        for j in range(num_teams):
-            k = random.randint(0,len(teams) - 1)
-            tuples[i][1].append(teams.pop(k))
-    return tuples
+# def board():
+#     tuples = [[0,[]] for i in range(3)]
+#     for i, item in enumerate(tuples):
+#         teams = ['a', 'b', 'c', 'd']
+#         tuples[i][0] = random.randint(1,8)
+#         num_teams = len(teams)
+#         for j in range(num_teams):
+#             k = random.randint(0,len(teams) - 1)
+#             tuples[i][1].append(teams.pop(k))
+#     return tuples
+#
+# def smith():
+#     tuples = board()
+#
+# def success(winning_set, losing_set, tuples):
+#     return borda_winner(tuples) in losing_set
+#
+# def black(tuples):
+#     condorcet = winner_exists(tuples)
+#     if condorcet[0]:
+#         return condorcet[1]
+#     return borda_winner(tuples)
+#
+# def borda_winner(tuples):
+#     candidates = tuples[0][1]
+#     counts = dict()
+#     for candidate in candidates:
+#         score = 0
+#         for tuple in tuples:
+#             score += tuples[0] * tuple[1].index(candidate)
+#         counts[candidate] = score
+#     k = list(counts.keys())
+#     v = list(counts.values())
+#     return k[v.index(max(v))]
+#
+#
+# def winner_exists(tuples):
+#     candidates = tuples[0][1]
+#     for candidate in candidates:
+#         if condorcet_winner(candidate, tuples):
+#             return (True, candidate)
+#     return (False, False)
+#
+# def smith_sets(a, tuples):
+#
+#     candidates = tuples[0][1]
+#     candidates.pop(a)
+#     for candidate in candidates:
+#         score = 0
+#         for tuple in tuples:
+#             if tuple[1].index(a) > tuple[1].index(candidate):
+#                 score += tuple[0]
+#             else:
+#                 score -= tuple[0]
+#         if score <= 0:
+#             return False
+#     return True
+#
+#
+# def condorcet_winner(a, tuples):
+#     candidates = tuples[0][1]
+#     candidates.pop(a)
+#     for candidate in candidates:
+#         score = 0
+#         for tuple in tuples:
+#             if tuple[1].index(a) > tuple[1].index(candidate):
+#                 score += tuple[0]
+#             else:
+#                 score -= tuple[0]
+#         if score <= 0:
+#             return False
+#     return True
+#
 
-def smith():
-    tuples = board()
+def shapley_shubik_five(q, candidates):
 
-def success(winning_set, losing_set, tuples):
-    return borda_winner(tuples) in losing_set
+    permutations = [[a, b, c, d, e] for a in candidates
+                                 for b in filter(lambda x: x != a, candidates)
+                                 for c in filter(lambda x: x != a and x != b, candidates)
+                                 for d in filter(lambda x: x != a and x != b and x != c, candidates)
+                                 for e in filter(lambda x: x != a and x != b and x != c and x != d, candidates)]
 
-def black(tuples):
-    condorcet = winner_exists(tuples)
-    if condorcet[0]:
-        return condorcet[1]
-    return borda_winner(tuples)
-
-def borda_winner(tuples):
-    candidates = tuples[0][1]
-    counts = dict()
-    for candidate in candidates:
+    power = {x: 0 for x in candidates}
+    for permutation in permutations:
         score = 0
-        for tuple in tuples:
-            score += tuples[0] * tuple[1].index(candidate)
-        counts[candidate] = score
-    k = list(counts.keys())
-    v = list(counts.values())
-    return k[v.index(max(v))]
+        for key in permutation:
+            score += candidates[key]
+            if score >= q:
+                power[key] += 1
+                break
+    full_power = sum(power.values())
 
+    for key, value in power.items():
+        power[key] = value/full_power
 
-def winner_exists(tuples):
-    candidates = tuples[0][1]
-    for candidate in candidates:
-        if condorcet_winner(candidate, tuples):
-            return (True, candidate)
-    return (False, False)
-
-def smith_sets(a, tuples):
-
-    candidates = tuples[0][1]
-    candidates.pop(a)
-    for candidate in candidates:
-        score = 0
-        for tuple in tuples:
-            if tuple[1].index(a) > tuple[1].index(candidate):
-                score += tuple[0]
-            else:
-                score -= tuple[0]
-        if score <= 0:
-            return False
-    return True
-
-
-def condorcet_winner(a, tuples):
-    candidates = tuples[0][1]
-    candidates.pop(a)
-    for candidate in candidates:
-        score = 0
-        for tuple in tuples:
-            if tuple[1].index(a) > tuple[1].index(candidate):
-                score += tuple[0]
-            else:
-                score -= tuple[0]
-        if score <= 0:
-            return False
-    return True
+    return power
 
 
 if __name__ == '__main__':
-    print(board())
+    print(shapley_shubik_five(61, {'a': 35, 'b': 16, 'c': 5, 'd': 5, 'e': 4}))
 # board = Board()
 # a = Node(str(board))
 # board_list = [[0] for i in range(9)]
