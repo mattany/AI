@@ -230,9 +230,7 @@ class GraphPlan(object):
 
 
 def independent_pair(a1, a2):
-    if competing_needs(a1, a2) or \
-            inconsistent_effects(a1, a2) or \
-            interference(a1, a2):
+    if inconsistent_effects(a1, a2) or interference(a1, a2):
         return False
     return True
 
@@ -263,12 +261,12 @@ def one_directional_inconsistent_effects(a1, a2):
     return False
 
 
-def competing_needs(a1, a2):
-    a1_pre = a1.get_pre()
-    for item in a1_pre:
-        if a2.is_pre_cond(not item):
-            return True
-    return False
+# def competing_needs(a1, a2):
+#     a1_pre = a1.get_pre()
+#     for item in a1_pre:
+#         if a2.is_pre_cond(not item):
+#             return True
+#     return False
 
 
 if __name__ == '__main__':

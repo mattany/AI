@@ -58,7 +58,25 @@ class PlanGraphLevel(object):
         self.actionLayer.addAction(action) adds action to the current action layer
         """
         all_actions = PlanGraphLevel.actions
-        "*** YOUR CODE HERE ***"
+        for action in all_actions:
+            if not previous_proposition_layer.all_preconds_in_layer(action):
+                continue
+            else:
+                pre = action.get_pre()
+                mutex = False
+                while not mutex:
+                    for prop1 in pre:
+                        for prop2 in pre:
+                            if Pair(prop1, prop2) in previous_proposition_layer.get_mutex_props():
+                                mutex = True
+                if not mutex:
+                    self.action_layer.add_action(action)
+
+
+
+
+
+        # previous_proposition_layer.get_mutex_props
 
     def update_mutex_actions(self, previous_layer_mutex_proposition):
         """
@@ -71,7 +89,8 @@ class PlanGraphLevel(object):
         Note that an action is *not* mutex with itself
         """
         current_layer_actions = self.action_layer.get_actions()
-        "*** YOUR CODE HERE ***"
+
+
 
     def update_proposition_layer(self):
         """
@@ -145,7 +164,13 @@ def have_competing_needs(a1, a2, mutex_props):
     Hint: for propositions p  and q, the command  "Pair(p, q) in mutex_props"
           returns true if p and q are mutex in the previous level
     """
-    return Pair(a1.get_pre, a2.get_pre)
+    a1pre = a1.get_pre()
+    a2pre = a2.get_pre()
+    for pre1 in a1pre:
+        for pre2 in a2pre:
+            if Pair(pre1, pre2) in mutex_props:
+                return True
+    return False
 
 
 
@@ -157,4 +182,10 @@ def mutex_propositions(prop1, prop2, mutex_actions_list):
     You might want to use this function:
     prop1.get_producers() returns the set of all the possible actions in the layer that have prop1 on their add list
     """
-    "*** YOUR CODE HERE ***"
+    prop1_actions = prop1.get_producers()
+    prop2_actions = prop2.get_producers()
+    for a1 in prop1_actions:
+        for a2 in prop2_actions:
+            if Pair(a1, a2) in mutex_actions_list:
+                return True
+    return False
