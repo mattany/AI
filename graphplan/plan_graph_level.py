@@ -2,6 +2,7 @@ from action_layer import ActionLayer
 from util import Pair
 from proposition import Proposition
 from proposition_layer import PropositionLayer
+from collections import defaultdict
 
 
 class PlanGraphLevel(object):
@@ -94,8 +95,12 @@ class PlanGraphLevel(object):
         Updates the propositions in the current proposition layer,
         given the current action layer.
         don't forget to update the producers list!
+
+        WHAT DOES THIS MEAN!?
         Note that same proposition in different layers might have different producers lists,
         hence you should create two different instances.
+
+
         current_layer_actions is the set of all the actions in the current layer.
         You might want to use those functions:
         dict() creates a new dictionary that might help to keep track on the propositions that you've
@@ -104,11 +109,15 @@ class PlanGraphLevel(object):
 
         """
         current_layer_actions = self.action_layer.get_actions()
+        proposition_dict = defaultdict(list)  # key is proposition and value is list of producers
         for action in current_layer_actions:
             actions_propositions = action.get_add()
             for proposition in actions_propositions:
+                proposition_dict[proposition].append(action)
+        for proposition in proposition_dict:
+            proposition.set_producers(proposition_dict[proposition])
+            self.proposition_layer.add_proposition(proposition)
 
-        # TODO Continue from here
 
     def update_mutex_proposition(self):
         """
