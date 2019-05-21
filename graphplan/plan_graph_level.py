@@ -62,17 +62,15 @@ class PlanGraphLevel(object):
             mutex = False
             if not previous_proposition_layer.all_preconds_in_layer(action):
                 continue
-            else:
-                pre = action.get_pre()
-                while not mutex:
-                    for i, prop1 in enumerate(pre):
-                        for j in range(i + 1, len(pre)):
-                            prop2 = pre[j]
-                            if Pair(prop1, prop2) in previous_proposition_layer.get_mutex_props():
-                                mutex = True
+            pre = action.get_pre()
+            while not mutex:
+                for i, prop1 in enumerate(pre):
+                    for j in range(i + 1, len(pre)):
+                        prop2 = pre[j]
+                        if Pair(prop1, prop2) in previous_proposition_layer.get_mutex_props():
+                            mutex = True
             if not mutex:
                 self.action_layer.add_action(action)
-
 
     def update_mutex_actions(self, previous_layer_mutex_proposition):
         """
@@ -86,11 +84,10 @@ class PlanGraphLevel(object):
         """
         current_layer_actions = self.action_layer.get_actions()
         for i, act1 in enumerate(current_layer_actions):
-            for j in range(i+1, len(current_layer_actions)):
-                act2=current_layer_actions[j]
+            for j in range(i + 1, len(current_layer_actions)):
+                act2 = current_layer_actions[j]
                 if mutex_actions(act1, act2, previous_layer_mutex_proposition):
                     self.action_layer.add_mutex_actions(act1, act2)
-
 
     def update_proposition_layer(self):
         """
@@ -107,7 +104,11 @@ class PlanGraphLevel(object):
 
         """
         current_layer_actions = self.action_layer.get_actions()
-        #TODO Continue from here
+        for action in current_layer_actions:
+            actions_propositions = action.get_add()
+            for proposition in actions_propositions:
+
+        # TODO Continue from here
 
     def update_mutex_proposition(self):
         """
@@ -171,7 +172,6 @@ def have_competing_needs(a1, a2, mutex_props):
             if Pair(pre1, pre2) in mutex_props:
                 return True
     return False
-
 
 
 def mutex_propositions(prop1, prop2, mutex_actions_list):
