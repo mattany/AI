@@ -113,11 +113,10 @@ class PlanGraphLevel(object):
         for action in current_layer_actions:
             actions_propositions = action.get_add()
             for proposition in actions_propositions:
-                proposition_dict[proposition].append(action)
+                proposition_dict[proposition].append(action)  # TODO : may be the produce list is not empty??
         for proposition in proposition_dict:
             proposition.set_producers(proposition_dict[proposition])
             self.proposition_layer.add_proposition(proposition)
-
 
     def update_mutex_proposition(self):
         """
@@ -130,7 +129,15 @@ class PlanGraphLevel(object):
         """
         current_layer_propositions = self.proposition_layer.get_propositions()
         current_layer_mutex_actions = self.action_layer.get_mutex_actions()
-        "*** YOUR CODE HERE ***"
+        for i, prop1 in enumerate(current_layer_propositions):
+            for j in range(i + 1, len(current_layer_propositions)):
+                if mutex_propositions(prop1, current_layer_propositions[j], current_layer_mutex_actions):
+                    self.proposition_layer.add_mutex_prop(prop1, current_layer_propositions[j])
+
+        # for prop1 in current_layer_propositions:
+        #     for prop2 in current_layer_propositions:
+        #         if mutex_propositions(prop1, prop2, current_layer_mutex_actions):
+        #             self.proposition_layer.add_mutex_prop(prop1, prop2)
 
     def expand(self, previous_layer):
         """
@@ -143,6 +150,8 @@ class PlanGraphLevel(object):
         """
         previous_proposition_layer = previous_layer.get_proposition_layer()
         previous_layer_mutex_proposition = previous_proposition_layer.get_mutex_props()
+
+
 
         "*** YOUR CODE HERE ***"
 
@@ -195,6 +204,6 @@ def mutex_propositions(prop1, prop2, mutex_actions_list):
     prop2_actions = prop2.get_producers()
     for a1 in prop1_actions:
         for a2 in prop2_actions:
-            if Pair(a1, a2) in mutex_actions_list:
-                return True
-    return False
+            if Pair(a1, a2) not in mutex_actions_list:
+                return False
+    return True
