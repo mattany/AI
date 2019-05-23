@@ -153,7 +153,6 @@ def level_sum(state, planning_problem):
     graph.append(pg_prev)
     sub_goals = planning_problem.goal
 
-
     while not planning_problem.is_goal_state(graph[level].get_proposition_layer().get_propositions()):
         if is_fixed(graph, level):
             return float('inf')
