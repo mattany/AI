@@ -174,6 +174,8 @@ class PlanGraphLevel(object):
         You don't have to use this function
         """
         previous_layer_proposition = previous_layer.get_proposition_layer()
+        self.update_action_layer(previous_layer_proposition)
+        self.update_proposition_layer()
         "*** YOUR CODE HERE ***"
 
 

@@ -41,13 +41,15 @@ class PlanningProblem:
         self.expanded = 0
 
     def get_start_state(self):
-        "*** YOUR CODE HERE ***"
+        return self.initialState
+        # "*** YOUR CODE HERE ***"
 
     def is_goal_state(self, state):
         """
         Hint: you might want to take a look at goal_state_not_in_prop_payer function
         """
-        "*** YOUR CODE HERE ***"
+        return not self.goal_state_not_in_prop_layer(state)
+        # "*** YOUR CODE HERE ***"
 
     def get_successors(self, state):
         """
@@ -63,16 +65,22 @@ class PlanningProblem:
         Note that a state *must* be hashable!! Therefore, you might want to represent a state as a frozenset
         """
         self.expanded += 1
-        "*** YOUR CODE HERE ***"
+        list_of_triples = list()
+        for action in self.actions:
+            if action.all_preconds_in_list(state):
+                list_of_triples.append(
+                    (state.union(action.get_add()).difference(action.get_delete()), action, 1))
+        return list_of_triples
+        # "*** YOUR CODE HERE ***"
 
     @staticmethod
-    def get_cost_of_actions( actions):
+    def get_cost_of_actions(actions):
         return len(actions)
 
     def goal_state_not_in_prop_layer(self, propositions):
         """
-        Helper function that receives a  list of propositions (propositions) and returns False
-        if not all the goal propositions are in that list
+        Helper function that receives a  list of propositions and returns True
+        if all the goal propositions are in that list
         """
         for goal in self.goal:
             if goal not in propositions:
@@ -98,6 +106,7 @@ def max_level(state, planning_problem):
     """
     The heuristic value is the number of layers required to expand all goal propositions.
     If the goal is not reachable from the state your heuristic should return float('inf')
+
     A good place to start would be:
     prop_layer_init = PropositionLayer()          #create a new proposition layer
     for prop in state:
@@ -105,7 +114,28 @@ def max_level(state, planning_problem):
     pg_init = PlanGraphLevel()                   #create a new plan graph level (level is the action layer and the propositions layer)
     pg_init.set_proposition_layer(prop_layer_init)   #update the new plan graph level with the the proposition layer
     """
-    "*** YOUR CODE HERE ***"
+    level = 0
+    graph = list()
+    prop_layer = PropositionLayer()
+    for prop in state:
+        prop_layer.add_proposition(prop)
+    pg_prev = PlanGraphLevel()
+    pg_prev.set_proposition_layer(prop_layer)
+    graph.append(pg_prev)
+
+    while not planning_problem.is_goal_state(graph[level].get_proposition_layer().get_propositions()):
+        if is_fixed(graph, level):
+            return float('inf')
+            # this means we stopped the while loop above because we reached a fixed point in the graph.
+            #  nothing more to do, we failed!
+        level += 1
+        pg_next = PlanGraphLevel()  # create new PlanGraph object
+        pg_next.expand_without_mutex(pg_prev)
+        graph.append(pg_next)  # appending the new level to the plan graph
+    return level
+
+
+"*** YOUR CODE HERE ***"
 
 
 def level_sum(state, planning_problem):
@@ -113,6 +143,27 @@ def level_sum(state, planning_problem):
     The heuristic value is the sum of sub-goals level they first appeared.
     If the goal is not reachable from the state your heuristic should return float('inf')
     """
+    level = 0
+    graph = list()
+    prop_layer = PropositionLayer()
+    for prop in state:
+        prop_layer.add_proposition(prop)
+    pg_prev = PlanGraphLevel()
+    pg_prev.set_proposition_layer(prop_layer)
+    graph.append(pg_prev)
+    sub_goals = planning_problem.goal
+
+
+    while not planning_problem.is_goal_state(graph[level].get_proposition_layer().get_propositions()):
+        if is_fixed(graph, level):
+            return float('inf')
+            # this means we stopped the while loop above because we reached a fixed point in the graph.
+            #  nothing more to do, we failed!
+        level += 1
+        pg_next = PlanGraphLevel()  # create new PlanGraph object
+        pg_next.expand_without_mutex(pg_prev)
+        graph.append(pg_next)  # appending the new level to the plan graph
+    return level
     "*** YOUR CODE HERE ***"
 
 
