@@ -37,7 +37,7 @@ def add_action(domain_file, disk, src, dest):
     domain_file.write("Move: %s%s%s\n" % (disk, src, dest))
     domain_file.write("pre: %s %s %s%s  \n" % (disk, dest, disk, src))
     domain_file.write("add: %s %s%s\n" % (src, disk, dest))
-    domain_file.write("delete: %s %s%s\n" % (dest, disk, dest))
+    domain_file.write("delete: %s %s%s\n" % (dest, disk, src))
 
 
 def create_domain_file(domain_file_name, n_, m_):
