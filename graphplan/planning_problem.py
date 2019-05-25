@@ -71,7 +71,6 @@ class PlanningProblem:
                 list_of_triples.append(
                     (state.union(action.get_add()).difference(action.get_delete()), action, 1))
         return list_of_triples
-        # "*** YOUR CODE HERE ***"
 
     @staticmethod
     def get_cost_of_actions(actions):
@@ -114,27 +113,14 @@ def max_level(state, planning_problem):
     pg_init = PlanGraphLevel()                   #create a new plan graph level (level is the action layer and the propositions layer)
     pg_init.set_proposition_layer(prop_layer_init)   #update the new plan graph level with the the proposition layer
     """
-    level = 0
-    graph = list()
-    prop_layer = PropositionLayer()
-    for prop in state:
-        prop_layer.add_proposition(prop)
-    props = prop_layer.get_propositions()
-    pg_prev = PlanGraphLevel()
-    pg_prev.set_proposition_layer(prop_layer)
-    graph.append(pg_prev)
+    graph, level, pg_prev, props = heuristic_helper(state)
 
     while not planning_problem.is_goal_state(props):
         if is_fixed(graph, level):
             return float('inf')
             # this means we stopped the while loop above because we reached a fixed point in the graph.
             #  nothing more to do, we failed!
-        level += 1
-        pg_curr = PlanGraphLevel()  # create new PlanGraph object
-        pg_curr.expand_without_mutex(pg_prev)
-        graph.append(pg_curr)  # appending the new level to the plan graph
-        props = pg_curr.get_proposition_layer().get_propositions()
-        pg_prev = pg_curr
+        graph, level, pg_prev, props = heuristic_helper_2(graph, level, pg_prev, props)
 
     return level
 
@@ -144,15 +130,7 @@ def level_sum(state, planning_problem):
     The heuristic value is the sum of sub-goals level they first appeared.
     If the goal is not reachable from the state your heuristic should return float('inf')
     """
-    level = 0
-    graph = list()
-    prop_layer = PropositionLayer()
-    for prop in state:
-        prop_layer.add_proposition(prop)
-    props = prop_layer.get_propositions()
-    pg_prev = PlanGraphLevel()
-    pg_prev.set_proposition_layer(prop_layer)
-    graph.append(pg_prev)
+    graph, level, pg_prev, props = heuristic_helper(state)
 
     sub_goals = planning_problem.goal
     min_levels = update_min_levels(dict(), sub_goals, props, level)
@@ -162,23 +140,41 @@ def level_sum(state, planning_problem):
             return float('inf')
             # this means we stopped the while loop above because we reached a fixed point in the graph.
             #  nothing more to do, we failed!
-        level += 1
-        pg_curr = PlanGraphLevel()  # create new PlanGraph object
-        pg_curr.expand_without_mutex(pg_prev)
-        graph.append(pg_curr)
-        props = pg_curr.get_proposition_layer().get_propositions()
+        graph, level, pg_prev, props = heuristic_helper_2(graph, level, pg_prev, props)
         min_levels = update_min_levels(min_levels, sub_goals, props, level)
-        pg_prev = pg_curr
 
     return sum(min_levels.values())
 
 
+def heuristic_helper_2(graph, level, pg_prev, props):
+    level += 1
+    pg_curr = PlanGraphLevel()  # create new PlanGraph object
+    pg_curr.expand_without_mutex(pg_prev)
+    graph.append(pg_curr)
+    props = pg_curr.get_proposition_layer().get_propositions()
+    pg_prev = pg_curr
+    return graph, level, pg_prev, props
+
+
+def heuristic_helper(state):
+    level = 0
+    graph = list()
+    prop_layer = PropositionLayer()
+    for prop in state:
+        prop_layer.add_proposition(prop)
+    props = prop_layer.get_propositions()
+    pg_prev = PlanGraphLevel()
+    pg_prev.set_proposition_layer(prop_layer)
+    graph.append(pg_prev)
+    return graph, level, pg_prev, props
+
+
 def update_min_levels(min_levels, sub_goals, propositions, level):
     for goal in sub_goals:
-        if goal in propositions:
-            if goal not in min_levels.keys():
-                min_levels[goal] = level
+        if goal in propositions and goal not in min_levels:
+            min_levels[goal] = level
     return min_levels
+
 
 def is_fixed(graph, level):
     """

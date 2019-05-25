@@ -50,7 +50,6 @@ class GraphPlan(object):
         pg_init = PlanGraphLevel()
         pg_init.set_proposition_layer(prop_layer_init)
         self.graph.append(pg_init)
-        size_no_good = -1
 
         """
         While the layer does not contain all of the propositions in the goal state,
