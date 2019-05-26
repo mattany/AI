@@ -28,9 +28,8 @@ def write_actions(domain_file, disks, pegs):
                     add_action(domain_file, disk, peg1, peg2)
         for j, peg in enumerate(pegs):
             for k in range(i + 1, len(disks)):
-                if j != k:
-                    add_action(domain_file, disk, peg, disks[k])
-                    add_action(domain_file, disk, disks[k], peg)
+                add_action(domain_file, disk, peg, disks[k])
+                add_action(domain_file, disk, disks[k], peg)
 
 
 def add_action(domain_file, disk, src, dest):
