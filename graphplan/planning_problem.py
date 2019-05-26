@@ -142,7 +142,6 @@ def level_sum(state, planning_problem):
             #  nothing more to do, we failed!
         graph, level, pg_prev, props = heuristic_helper_2(graph, level, pg_prev, props)
         min_levels = update_min_levels(min_levels, sub_goals, props, level)
-
     return sum(min_levels.values())
 
 
