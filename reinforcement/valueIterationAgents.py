@@ -11,6 +11,7 @@ from learningAgents import ValueEstimationAgent
 
 PROB = 1
 STATE = 0
+INF = float("inf")
 class ValueIterationAgent(ValueEstimationAgent):
     """
         * Please read learningAgents.py before reading this.*
@@ -20,6 +21,11 @@ class ValueIterationAgent(ValueEstimationAgent):
         for a given number of iterations using the supplied
         discount factor.
     """
+
+    def q_value(self, state, action, vals):
+        return sum(tup[PROB] * (self.mdp.getReward(state, action, tup[STATE]) + (vals[tup[STATE]]*self.discount))
+                   for tup in self.mdp.getTransitionStatesAndProbs(state, action))
+
 
     def __init__(self, mdp, discount=0.9, iterations=100):
         """
@@ -39,29 +45,31 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.values = util.Counter()  # A Counter is a dict with default
         self.policies = util.Counter()
         self.qvalues = util.Counter()
-        temp = util.Counter()
+        temp = self.values
         for i in range(iterations):
-            self.values = temp
             for state in mdp.getStates():
                 if not mdp.isTerminal(state):
-                    temp[state] = max(sum(tup[PROB] * (mdp.getReward(state, action, tup[STATE]) + (self.values[tup[STATE]]*self.discount))
-                                                                         for tup in mdp.getTransitionStatesAndProbs(state, action)) for action in mdp.getPossibleActions(state))
-        self.values = temp
+                    temp[state] = max(self.q_value(state, action, self.values) for action in mdp.getPossibleActions(state))
+                self.values = temp
+
+        # one more iteration for q values and policies
+        for state in mdp.getStates():
+            if not mdp.isTerminal(state):
+                temp[state] = max(self.q_value(state, action, self.values) for action in mdp.getPossibleActions(state))
 
         # init qvalues
         for state in mdp.getStates():
             if not mdp.isTerminal(state):
                 for action in mdp.getPossibleActions(state):
-                    self.qvalues[(state, action)] = sum(tup[PROB] * (mdp.getReward(state, action, tup[STATE]) + (self.values[tup[STATE]]*self.discount))
-                                                 for tup in mdp.getTransitionStatesAndProbs(state, action))
+                    self.qvalues[(state, action)] = self.q_value(state, action, temp)
 
         #init policies
         for state in mdp.getStates():
             policy = None
-            max_value = -np.inf
+            max_value = -INF
             for action in self.mdp.getPossibleActions(state):
                 for (next_state, prob) in self.mdp.getTransitionStatesAndProbs(state, action):
-                    if self.values[next_state] > max_value:
+                    if temp[next_state] > max_value:
                         max_value = self.values[next_state]
                         policy = action
             self.policies[state] = policy
