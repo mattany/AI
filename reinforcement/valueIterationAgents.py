@@ -38,11 +38,6 @@ class ValueIterationAgent(ValueEstimationAgent):
     def q_value(self, state, action, values):
         return sum(tup[PROB] * values[tup[STATE]] for tup in self.mdp.getTransitionStatesAndProbs(state, action))
 
-    def reward(self, state, action):
-        # return sum(tup[PROB] * (self.mdp.getReward(state, action, tup[STATE]) + (vals[tup[STATE]]*self.discount))
-        #            for tup in self.mdp.getTransitionStatesAndProbs(state, action))
-        return sum(tup[PROB] * self.mdp.getReward(state, action, tup[STATE]) for tup in self.mdp.getTransitionStatesAndProbs(state, action))
-
     def utility(self, state, action, values):
         return sum(tup[PROB] * (self.mdp.getReward(state, action, tup[STATE]) + (values[tup[STATE]]*self.discount))
                    for tup in self.mdp.getTransitionStatesAndProbs(state, action))
