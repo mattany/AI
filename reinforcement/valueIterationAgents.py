@@ -85,6 +85,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             temp = self.next_level()
             self.values = temp
 
+        # one more level for policies and q values.
         temp = self.next_level()
 
         self.set_q_values(temp)
