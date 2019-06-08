@@ -9,9 +9,15 @@ import mdp, util, numpy as np
 
 from learningAgents import ValueEstimationAgent
 
+QVALUE = 0
+
+ACTION = 1
+
+UTILITY = 0
+
 PROB = 1
 STATE = 0
-INF = float("inf")
+
 class ValueIterationAgent(ValueEstimationAgent):
     """
         * Please read learningAgents.py before reading this.*
@@ -22,10 +28,32 @@ class ValueIterationAgent(ValueEstimationAgent):
         discount factor.
     """
 
-    def q_value(self, state, action, vals):
-        return sum(tup[PROB] * (self.mdp.getReward(state, action, tup[STATE]) + (vals[tup[STATE]]*self.discount))
+    def q_value(self, state, action):
+        return sum(tup[PROB] * self.values[tup[STATE]] for tup in self.mdp.getTransitionStatesAndProbs(state, action))
+
+    def reward(self, state, action):
+        # return sum(tup[PROB] * (self.mdp.getReward(state, action, tup[STATE]) + (vals[tup[STATE]]*self.discount))
+        #            for tup in self.mdp.getTransitionStatesAndProbs(state, action))
+        return sum(tup[PROB] * self.mdp.getReward(state, action, tup[STATE]) for tup in self.mdp.getTransitionStatesAndProbs(state, action))
+
+    def utility(self, state, action):
+        return sum(tup[PROB] * (self.mdp.getReward(state, action, tup[STATE]) + (self.values[tup[STATE]]*self.discount))
                    for tup in self.mdp.getTransitionStatesAndProbs(state, action))
 
+    def set_policies(self):
+        for state in self.mdp.getStates():
+            if not self.mdp.isTerminal(state):
+                self.policies[state] = max([(self.q_value(state, action), action)
+                                            for action in
+                                            self.mdp.getPossibleActions(state)], key=lambda x: x[QVALUE])[ACTION]
+                continue
+            self.policies[state] = None
+
+    def set_q_values(self):
+        for state in self.mdp.getStates():
+            if not self.mdp.isTerminal(state):
+                for action in self.mdp.getPossibleActions(state):
+                    self.q_values[(state, action)] = self.q_value(state, action)
 
     def __init__(self, mdp, discount=0.9, iterations=100):
         """
@@ -44,35 +72,19 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.iterations = iterations
         self.values = util.Counter()  # A Counter is a dict with default
         self.policies = util.Counter()
-        self.qvalues = util.Counter()
-        temp = self.values
+        self.q_values = util.Counter()
+
         for i in range(iterations):
+            temp = self.values.copy()
             for state in mdp.getStates():
                 if not mdp.isTerminal(state):
-                    temp[state] = max(self.q_value(state, action, self.values) for action in mdp.getPossibleActions(state))
-                self.values = temp
+                    temp[state] = max(self.utility(state, action) for action in mdp.getPossibleActions(state))
+            self.values = temp
 
-        # one more iteration for q values and policies
-        for state in mdp.getStates():
-            if not mdp.isTerminal(state):
-                temp[state] = max(self.q_value(state, action, self.values) for action in mdp.getPossibleActions(state))
+        self.set_q_values()
+        self.set_policies()
 
-        # init qvalues
-        for state in mdp.getStates():
-            if not mdp.isTerminal(state):
-                for action in mdp.getPossibleActions(state):
-                    self.qvalues[(state, action)] = self.q_value(state, action, temp)
 
-        #init policies
-        for state in mdp.getStates():
-            policy = None
-            max_value = -INF
-            for action in self.mdp.getPossibleActions(state):
-                for (next_state, prob) in self.mdp.getTransitionStatesAndProbs(state, action):
-                    if temp[next_state] > max_value:
-                        max_value = self.values[next_state]
-                        policy = action
-            self.policies[state] = policy
 
     def getValue(self, state):
         """
@@ -88,8 +100,8 @@ class ValueIterationAgent(ValueEstimationAgent):
           necessarily create this quantity and you may have
           to derive it on the fly.
         """
-
-        return self.qvalues[(state, action)]
+        return self.q_values[(state, action)]
+        # return self.q_value(state, action, self.values)
 
     def getPolicy(self, state):
         """
@@ -99,7 +111,7 @@ class ValueIterationAgent(ValueEstimationAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
-        # policy = None
+        policy = None
         # max_value = -np.inf
         # for action in self.mdp.getPossibleActions(state):
         #     for (prob, next_state) in self.mdp.getTransitionStatesAndProbs(state, action):
@@ -107,7 +119,12 @@ class ValueIterationAgent(ValueEstimationAgent):
         #             max_value = self.values[next_state]
         #             policy = action
         # return policy
+
         return self.policies[state]
+        # if not self.mdp.isTerminal(state):
+        #     policy = max([(self.q_value(state, action, self.values), action) for action in self.mdp.getPossibleActions(state)],
+        #                  key=lambda x: x[QVALUE])[ACTION]
+        # return policy
 
     def getAction(self, state):
         "Returns the policy at the state (no exploration)."

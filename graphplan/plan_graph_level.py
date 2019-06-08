@@ -124,7 +124,7 @@ class PlanGraphLevel(object):
         for action in current_layer_actions:
             actions_propositions = action.get_add()
             for proposition in actions_propositions:
-                proposition_dict[proposition].append(action)  # TODO : may be the produce list is not empty??
+                proposition_dict[proposition].append(action)
         for proposition in proposition_dict:
             proposition.set_producers(proposition_dict[proposition])
             self.proposition_layer.add_proposition(proposition)
@@ -140,11 +140,6 @@ class PlanGraphLevel(object):
         """
         current_layer_propositions = self.proposition_layer.get_propositions()
         current_layer_mutex_actions = self.action_layer.get_mutex_actions()
-        # for i, prop1 in enumerate(current_layer_propositions):
-        #     for j in range(i + 1, len(current_layer_propositions)):
-        #         if mutex_propositions(prop1, current_layer_propositions[j], current_layer_mutex_actions):
-        #             self.proposition_layer.add_mutex_prop(prop1, current_layer_propositions[j])
-
         for prop1 in current_layer_propositions:
             for prop2 in current_layer_propositions:
                 if prop1 != prop2 and mutex_propositions(prop1, prop2, current_layer_mutex_actions):
@@ -166,8 +161,6 @@ class PlanGraphLevel(object):
         self.update_proposition_layer()
         self.update_mutex_proposition()
 
-        "*** YOUR CODE HERE ***"
-
     def expand_without_mutex(self, previous_layer):
         """
         Questions 11 and 12
@@ -176,7 +169,6 @@ class PlanGraphLevel(object):
         previous_layer_proposition = previous_layer.get_proposition_layer()
         self.update_action_layer(previous_layer_proposition)
         self.update_proposition_layer()
-
 
 
 def mutex_actions(a1, a2, mutex_props):
