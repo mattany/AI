@@ -32,30 +32,27 @@ class ValueIterationAgent(ValueEstimationAgent):
         temp = self.values.copy()
         for state in self.mdp.getStates():
             if not self.mdp.isTerminal(state):
-                temp[state] = max(self.utility(state, action, self.values) for action in self.mdp.getPossibleActions(state))
+                temp[state] = max(self.q_value(state, action) for action in self.mdp.getPossibleActions(state))
         return temp
 
-    def q_value(self, state, action, values):
-        return sum(tup[PROB] * values[tup[STATE]] for tup in self.mdp.getTransitionStatesAndProbs(state, action))
-
-    def utility(self, state, action, values):
-        return sum(tup[PROB] * (self.mdp.getReward(state, action, tup[STATE]) + (values[tup[STATE]]*self.discount))
+    def q_value(self, state, action):
+        return sum(tup[PROB] * (self.mdp.getReward(state, action, tup[STATE]) + (self.values[tup[STATE]]*self.discount))
                    for tup in self.mdp.getTransitionStatesAndProbs(state, action))
 
-    def set_policies(self, values):
+    def set_policies(self):
         for state in self.mdp.getStates():
             if not self.mdp.isTerminal(state):
-                self.policies[state] = max([(self.q_value(state, action, values), action)
+                self.policies[state] = max([(self.q_value(state, action), action)
                                             for action in
                                             self.mdp.getPossibleActions(state)], key=lambda x: x[QVALUE])[ACTION]
                 continue
             self.policies[state] = None
 
-    def set_q_values(self, values):
+    def set_q_values(self):
         for state in self.mdp.getStates():
             if not self.mdp.isTerminal(state):
                 for action in self.mdp.getPossibleActions(state):
-                    self.q_values[(state, action)] = self.q_value(state, action, values)
+                    self.q_values[(state, action)] = self.q_value(state, action)
 
     def __init__(self, mdp, discount=0.9, iterations=100):
         """
@@ -80,13 +77,8 @@ class ValueIterationAgent(ValueEstimationAgent):
             temp = self.next_level()
             self.values = temp
 
-        # one more level for policies and q values.
-        temp = self.next_level()
-
-        self.set_q_values(temp)
-        self.set_policies(temp)
-
-
+        self.set_q_values()
+        self.set_policies()
 
     def getValue(self, state):
         """
@@ -103,7 +95,6 @@ class ValueIterationAgent(ValueEstimationAgent):
           to derive it on the fly.
         """
         return self.q_values[(state, action)]
-        # return self.q_value(state, action, self.values)
 
     def getPolicy(self, state):
         """
@@ -113,20 +104,7 @@ class ValueIterationAgent(ValueEstimationAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return None.
         """
-        policy = None
-        # max_value = -np.inf
-        # for action in self.mdp.getPossibleActions(state):
-        #     for (prob, next_state) in self.mdp.getTransitionStatesAndProbs(state, action):
-        #         if self.values[next_state] > max_value:
-        #             max_value = self.values[next_state]
-        #             policy = action
-        # return policy
-
         return self.policies[state]
-        # if not self.mdp.isTerminal(state):
-        #     policy = max([(self.q_value(state, action, self.values), action) for action in self.mdp.getPossibleActions(state)],
-        #                  key=lambda x: x[QVALUE])[ACTION]
-        # return policy
 
     def getAction(self, state):
         "Returns the policy at the state (no exploration)."

@@ -50,6 +50,7 @@ class GraphPlan(object):
         pg_init = PlanGraphLevel()
         pg_init.set_proposition_layer(prop_layer_init)
         self.graph.append(pg_init)
+        size_no_good = -1
 
         """
         While the layer does not contain all of the propositions in the goal state,
@@ -279,6 +280,6 @@ if __name__ == '__main__':
     elapsed = time.clock() - start
     if plan is not None:
         print("Plan found with %d actions in %.2f seconds" % (
-        len([act for act in plan if not act.is_noop()]), elapsed))
+            len([act for act in plan if not act.is_noop()]), elapsed))
     else:
         print("Could not find a plan in %.2f seconds" % elapsed)
